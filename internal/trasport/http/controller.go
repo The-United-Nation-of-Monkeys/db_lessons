@@ -167,6 +167,8 @@ func NewController(server *fiber.App, cfg *config.Config, services *initializer.
 	transactionHandler := NewTransactionHandler(services.TransactionService)
 	api.Post("/transactions", transactionHandler.Create)
 	api.Get("/transactions", transactionHandler.GetAll)
+	api.Get("/transactions/report", transactionHandler.GetReportByParams)
+	api.Post("/transactions/bulk-update-status", transactionHandler.BulkUpdateTransactionStatus)
 	api.Get("/transactions/:id", transactionHandler.GetByID)
 	api.Put("/transactions/:id", transactionHandler.Update)
 	api.Delete("/transactions/:id", transactionHandler.Delete)

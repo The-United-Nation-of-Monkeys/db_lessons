@@ -166,3 +166,73 @@ func (h *TransactionHandler) Delete(ctx fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusNoContent).Send(nil)
 }
+
+// GetReportByParams
+// @Summary Get transaction report by parameters
+// @Description Get transaction report filtered by status name, min total, max total
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Param status_name query string false "Status name"
+// @Param min_total query int false "Min total price"
+// @Param max_total query int false "Max total price"
+// @Success 200 {array} dto.TransactionReportDTO
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /transactions/report [get]
+func (h *TransactionHandler) GetReportByParams(ctx fiber.Ctx) error {
+	params := &dto.TransactionReportRequestDTO{
+		StatusName: ctx.Query("status_name"),
+	}
+
+	if minTotalStr := ctx.Query("min_total"); minTotalStr != "" {
+		if minTotal, err := strconv.Atoi(minTotalStr); err == nil {
+			params.MinTotal = minTotal
+		}
+	}
+
+	if maxTotalStr := ctx.Query("max_total"); maxTotalStr != "" {
+		if maxTotal, err := strconv.Atoi(maxTotalStr); err == nil {
+			params.MaxTotal = maxTotal
+		}
+	}
+
+	reports, err := h.transactionService.GetReportByParams(ctx.Context(), params)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(reports)
+}
+
+// BulkUpdateTransactionStatus
+// @Summary Bulk update transaction status
+// @Description Bulk update transaction status by old status id, new status id and optional price range
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Param input body dto.BulkUpdateTransactionStatusDTO true "Bulk update parameters"
+// @Success 200 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /transactions/bulk-update-status [post]
+func (h *TransactionHandler) BulkUpdateTransactionStatus(ctx fiber.Ctx) error {
+	localLogger := logger.GetLoggerFromCtx(ctx.Context())
+
+	body := new(dto.BulkUpdateTransactionStatusDTO)
+	if err := ctx.Bind().JSON(body); err != nil {
+		localLogger.Info(ctx.Context(), "parse body exception", zap.Error(err))
+		return exception.UnprocessableEntity(err.Error())
+	}
+	localLogger.Info(ctx.Context(), "parse body")
+
+	err := h.transactionService.BulkUpdateTransactionStatus(ctx.Context(), body)
+	if err != nil {
+		return err
+	}
+	localLogger.Info(ctx.Context(), "bulk update completed")
+
+	return ctx.Status(fiber.StatusOK).JSON(map[string]string{
+		"message": "Transaction statuses updated successfully",
+	})
+}

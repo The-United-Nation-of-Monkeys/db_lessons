@@ -26,11 +26,18 @@ type TransactionReportRequestDTO struct {
 }
 
 type TransactionReportDTO struct {
-	TransactionsID int    `json:"transactions_id"`
-	StudentID      int    `json:"student_id"`
-	StudentName    string `json:"student_name"`
-	StudentSurname string `json:"student_surname"`
-	StatusName     string `json:"status_name"`
-	TotalPrice     int    `json:"total_price"`
-	CoursesNames   string `json:"courses_names"`
+	TransactionsID int     `json:"transactions_id"`
+	StudentID      int     `json:"student_id"`
+	StudentName    *string `json:"student_name"`
+	StudentSurname *string `json:"student_surname"`
+	StatusName     *string `json:"status_name"`
+	TotalPrice     int     `json:"total_price"`
+	CoursesNames   *string `json:"courses_names"`
+}
+
+type BulkUpdateTransactionStatusDTO struct {
+	OldStatusID int `json:"old_status_id" validate:"required"`
+	NewStatusID int `json:"new_status_id" validate:"required"`
+	MinTotal    int `json:"min_total,omitempty"`
+	MaxTotal    int `json:"max_total,omitempty"`
 }

@@ -13,6 +13,8 @@ type TransactionRepositoryInterface interface {
 	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.TransactionDTO, error)
 	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error)
 	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	GetReportByParams(ctx context.Context, tx pgx.Tx, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error)
+	BulkUpdateTransactionStatus(ctx context.Context, tx pgx.Tx, params *dto.BulkUpdateTransactionStatusDTO) error
 }
 
 type TransactionRepository struct{}
@@ -86,10 +88,33 @@ func (r *TransactionRepository) Delete(ctx context.Context, tx pgx.Tx, id int) e
 }
 
 func (r *TransactionRepository) GetReportByParams(ctx context.Context, tx pgx.Tx, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error) {
-	query := `SELECT *
-			  FROM get_transactions_report_dynamic($1, $2, $3)`
+	// Используем разбор composite type через (row).field_name
+	query := `SELECT 
+		transaction_id,
+		student_id,
+		student_name,
+		student_surname,
+		status_name,
+		total_price,
+		courses_names
+	FROM get_transactions_report_dynamic($1, $2, $3)`
+
 	response := make([]*dto.TransactionReportDTO, 0)
-	rows, err := tx.Query(ctx, query, params.StatusName, params.MinTotal, params.MaxTotal)
+
+	var statusName *string
+	if params.StatusName != "" {
+		statusName = &params.StatusName
+	}
+	var minTotal *int
+	if params.MinTotal > 0 {
+		minTotal = &params.MinTotal
+	}
+	var maxTotal *int
+	if params.MaxTotal > 0 {
+		maxTotal = &params.MaxTotal
+	}
+
+	rows, err := tx.Query(ctx, query, statusName, minTotal, maxTotal)
 	if err != nil {
 		return nil, err
 	}
@@ -97,15 +122,48 @@ func (r *TransactionRepository) GetReportByParams(ctx context.Context, tx pgx.Tx
 	defer rows.Close()
 	for rows.Next() {
 		var report dto.TransactionReportDTO
-		if err = rows.Scan(report.TransactionsID, report.StudentID, report.StudentName, report.StudentSurname, report.StatusName, report.TotalPrice, report.CoursesNames); err != nil {
+		var studentName, studentSurname, statusName, coursesNames *string
+
+		err = rows.Scan(
+			&report.TransactionsID,
+			&report.StudentID,
+			&studentName,
+			&studentSurname,
+			&statusName,
+			&report.TotalPrice,
+			&coursesNames,
+		)
+		if err != nil {
 			return nil, err
 		}
+
+		report.StudentName = studentName
+		report.StudentSurname = studentSurname
+		report.StatusName = statusName
+		report.CoursesNames = coursesNames
+
 		response = append(response, &report)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return response, nil
 }
 
-func (r *TransactionRepository) GetReport(ctx context.Context, tx pgx.Tx) ([]*dto.TransactionReportDTO, error) {
+func (r *TransactionRepository) BulkUpdateTransactionStatus(ctx context.Context, tx pgx.Tx, params *dto.BulkUpdateTransactionStatusDTO) error {
+	query := `CALL bulk_update_transaction_status($1, $2, $3, $4)`
 
+	var minTotal *int
+	if params.MinTotal > 0 {
+		minTotal = &params.MinTotal
+	}
+	var maxTotal *int
+	if params.MaxTotal > 0 {
+		maxTotal = &params.MaxTotal
+	}
+
+	_, err := tx.Exec(ctx, query, params.OldStatusID, params.NewStatusID, minTotal, maxTotal)
+	return err
 }

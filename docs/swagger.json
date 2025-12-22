@@ -4173,6 +4173,125 @@
                 }
             }
         },
+        "/transactions/bulk-update-status": {
+            "post": {
+                "description": "Bulk update transaction status by old status id, new status id and optional price range",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Bulk update transaction status",
+                "parameters": [
+                    {
+                        "description": "Bulk update parameters",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/report": {
+            "get": {
+                "description": "Get transaction report filtered by status name, min total, max total",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get transaction report by parameters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Status name",
+                        "name": "status_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Min total price",
+                        "name": "min_total",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max total price",
+                        "name": "max_total",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionReportDTO"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/transactions/{id}": {
             "get": {
                 "description": "Get transaction by ID",
@@ -4345,6 +4464,27 @@
         }
     },
     "definitions": {
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO": {
+            "type": "object",
+            "required": [
+                "new_status_id",
+                "old_status_id"
+            ],
+            "properties": {
+                "max_total": {
+                    "type": "integer"
+                },
+                "min_total": {
+                    "type": "integer"
+                },
+                "new_status_id": {
+                    "type": "integer"
+                },
+                "old_status_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CategoryDTO": {
             "type": "object",
             "properties": {
@@ -4960,6 +5100,32 @@
                     "type": "integer"
                 },
                 "transaction_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionReportDTO": {
+            "type": "object",
+            "properties": {
+                "courses_names": {
+                    "type": "string"
+                },
+                "status_name": {
+                    "type": "string"
+                },
+                "student_id": {
+                    "type": "integer"
+                },
+                "student_name": {
+                    "type": "string"
+                },
+                "student_surname": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "integer"
+                },
+                "transactions_id": {
                     "type": "integer"
                 }
             }

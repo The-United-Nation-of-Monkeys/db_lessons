@@ -441,3 +441,35 @@ GET DIAGNOSTICS v_affected_rows = ROW_COUNT;
 RAISE NOTICE 'Updated % rows in "transaction"', v_affected_rows;
 END;
 $$;
+
+CREATE OR REPLACE VIEW v_student_category_stats AS
+SELECT
+    s.student_id,
+    s.name       AS student_name,
+    s.surname    AS student_surname,
+
+    c.category_id,
+    c.name       AS category_name,
+
+    COUNT(DISTINCT sa.task_id)               AS solved_tasks_count,
+    COALESCE(SUM(sa.points), 0)              AS points_earned,
+    COALESCE(SUM(t.points), 0)               AS points_possible,
+    CASE
+        WHEN COALESCE(SUM(t.points), 0) = 0
+            THEN 0
+        ELSE ROUND(100.0 * COALESCE(SUM(sa.points), 0)::NUMERIC
+                        / NULLIF(SUM(t.points), 0), 2)
+        END AS success_percent                    -- процент набранных баллов
+FROM student s
+         JOIN student_answer sa
+              ON sa.student_id = s.student_id
+         JOIN task t
+              ON t.task_id = sa.task_id
+         LEFT JOIN category c
+                   ON c.category_id = t.category_id
+GROUP BY
+    s.student_id,
+    s.name,
+    s.surname,
+    c.category_id,
+    c.name;

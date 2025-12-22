@@ -18,6 +18,8 @@ type TransactionServiceInterface interface {
 	GetAll(ctx context.Context) ([]*dto.TransactionDTO, error)
 	Update(ctx context.Context, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error)
 	Delete(ctx context.Context, id int) error
+	GetReportByParams(ctx context.Context, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error)
+	BulkUpdateTransactionStatus(ctx context.Context, params *dto.BulkUpdateTransactionStatusDTO) error
 }
 
 type TransactionService struct {
@@ -176,5 +178,57 @@ func (s *TransactionService) Delete(ctx context.Context, id int) error {
 	}
 
 	localLogger.Info(ctx, "finish srv func Delete")
+	return nil
+}
+
+func (s *TransactionService) GetReportByParams(ctx context.Context, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error) {
+	localLogger := logger.GetLoggerFromCtx(ctx)
+	localLogger.Info(ctx, "start srv func GetReportByParams")
+
+	tx, err := s.dbPool.Begin(ctx)
+	if err != nil {
+		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		return nil, exception.InternalServerError()
+	}
+	defer database.RollbackTx(ctx, tx)
+
+	reports, err := s.transactionRepository.GetReportByParams(ctx, tx, params)
+	if err != nil {
+		localLogger.Error(ctx, "get report by params error", zap.Error(err), zap.Any("params", params))
+		return nil, exception.InternalServerError()
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		localLogger.Error(ctx, "commit error", zap.Error(err))
+		return nil, exception.InternalServerError()
+	}
+
+	localLogger.Info(ctx, "finish srv func GetReportByParams")
+	return reports, nil
+}
+
+func (s *TransactionService) BulkUpdateTransactionStatus(ctx context.Context, params *dto.BulkUpdateTransactionStatusDTO) error {
+	localLogger := logger.GetLoggerFromCtx(ctx)
+	localLogger.Info(ctx, "start srv func BulkUpdateTransactionStatus")
+
+	tx, err := s.dbPool.Begin(ctx)
+	if err != nil {
+		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		return exception.InternalServerError()
+	}
+	defer database.RollbackTx(ctx, tx)
+
+	err = s.transactionRepository.BulkUpdateTransactionStatus(ctx, tx, params)
+	if err != nil {
+		localLogger.Error(ctx, "bulk update transaction status error", zap.Error(err))
+		return exception.InternalServerError()
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		localLogger.Error(ctx, "commit error", zap.Error(err))
+		return exception.InternalServerError()
+	}
+
+	localLogger.Info(ctx, "finish srv func BulkUpdateTransactionStatus")
 	return nil
 }

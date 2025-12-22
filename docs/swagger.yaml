@@ -1,5 +1,19 @@
 basePath: /api/v1
 definitions:
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO:
+    properties:
+      max_total:
+        type: integer
+      min_total:
+        type: integer
+      new_status_id:
+        type: integer
+      old_status_id:
+        type: integer
+    required:
+    - new_status_id
+    - old_status_id
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CategoryDTO:
     properties:
       category_id:
@@ -405,6 +419,23 @@ definitions:
       total_price:
         type: integer
       transaction_id:
+        type: integer
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionReportDTO:
+    properties:
+      courses_names:
+        type: string
+      status_name:
+        type: string
+      student_id:
+        type: integer
+      student_name:
+        type: string
+      student_surname:
+        type: string
+      total_price:
+        type: integer
+      transactions_id:
         type: integer
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.UpdateCategoryDTO:
@@ -3453,6 +3484,86 @@ paths:
               type: string
             type: object
       summary: Update transaction
+      tags:
+      - Transactions
+  /transactions/bulk-update-status:
+    post:
+      consumes:
+      - application/json
+      description: Bulk update transaction status by old status id, new status id
+        and optional price range
+      parameters:
+      - description: Bulk update parameters
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Bulk update transaction status
+      tags:
+      - Transactions
+  /transactions/report:
+    get:
+      consumes:
+      - application/json
+      description: Get transaction report filtered by status name, min total, max
+        total
+      parameters:
+      - description: Status name
+        in: query
+        name: status_name
+        type: string
+      - description: Min total price
+        in: query
+        name: min_total
+        type: integer
+      - description: Max total price
+        in: query
+        name: max_total
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionReportDTO'
+            type: array
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get transaction report by parameters
       tags:
       - Transactions
 swagger: "2.0"

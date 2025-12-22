@@ -21,12 +21,12 @@ func NewStudentAnswerRepository() *StudentAnswerRepository {
 }
 
 func (r *StudentAnswerRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateStudentAnswerDTO) (*dto.StudentAnswerDTO, error) {
-	query := `INSERT INTO student_answer (student_id, task_id, answer, status_homework_id, points) 
-			  VALUES ($1, $2, $3, $4, $5) 
-			  RETURNING student_answer_id, student_id, task_id, answer, status_homework_id, points`
+	query := `INSERT INTO student_answer (student_id, task_id, answer, status_answer_id) 
+			  VALUES ($1, $2, $3, $4) 
+			  RETURNING student_answer_id, student_id, task_id, answer, status_answer_id`
 	var answer dto.StudentAnswerDTO
-	err := tx.QueryRow(ctx, query, data.StudentID, data.TaskID, data.Answer, data.StatusHomeworkID, data.Points).
-		Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusHomeworkID, &answer.Points)
+	err := tx.QueryRow(ctx, query, data.StudentID, data.TaskID, data.Answer, data.StatusAnswerID).
+		Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusAnswerID)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +34,9 @@ func (r *StudentAnswerRepository) Create(ctx context.Context, tx pgx.Tx, data *d
 }
 
 func (r *StudentAnswerRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.StudentAnswerDTO, error) {
-	query := `SELECT student_answer_id, student_id, task_id, answer, status_homework_id, points FROM student_answer WHERE student_answer_id = $1`
+	query := `SELECT student_answer_id, student_id, task_id, answer, status_answer_id FROM student_answer WHERE student_answer_id = $1`
 	var answer dto.StudentAnswerDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusHomeworkID, &answer.Points)
+	err := tx.QueryRow(ctx, query, id).Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusAnswerID)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (r *StudentAnswerRepository) GetByID(ctx context.Context, tx pgx.Tx, id int
 }
 
 func (r *StudentAnswerRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.StudentAnswerDTO, error) {
-	query := `SELECT student_answer_id, student_id, task_id, answer, status_homework_id, points FROM student_answer`
+	query := `SELECT student_answer_id, student_id, task_id, answer, status_answer_id FROM student_answer`
 	rows, err := tx.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (r *StudentAnswerRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto
 	var answers []*dto.StudentAnswerDTO
 	for rows.Next() {
 		var answer dto.StudentAnswerDTO
-		if err := rows.Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusHomeworkID, &answer.Points); err != nil {
+		if err := rows.Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusAnswerID); err != nil {
 			return nil, err
 		}
 		answers = append(answers, &answer)
@@ -67,13 +67,12 @@ func (r *StudentAnswerRepository) Update(ctx context.Context, tx pgx.Tx, id int,
 			  student_id = COALESCE($1, student_id),
 			  task_id = COALESCE($2, task_id),
 			  answer = COALESCE($3, answer),
-			  status_homework_id = COALESCE($4, status_homework_id),
-			  points = COALESCE($5, points)
-			  WHERE student_answer_id = $6
-			  RETURNING student_answer_id, student_id, task_id, answer, status_homework_id, points`
+			  status_answer_id = COALESCE($4, status_answer_id)
+			  WHERE student_answer_id = $5
+			  RETURNING student_answer_id, student_id, task_id, answer, status_answer_id`
 	var answer dto.StudentAnswerDTO
-	err := tx.QueryRow(ctx, query, data.StudentID, data.TaskID, data.Answer, data.StatusHomeworkID, data.Points, id).
-		Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusHomeworkID, &answer.Points)
+	err := tx.QueryRow(ctx, query, data.StudentID, data.TaskID, data.Answer, data.StatusAnswerID, id).
+		Scan(&answer.StudentAnswerID, &answer.StudentID, &answer.TaskID, &answer.Answer, &answer.StatusAnswerID)
 	if err != nil {
 		return nil, err
 	}

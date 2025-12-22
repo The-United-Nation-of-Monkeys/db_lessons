@@ -1,10 +1,16 @@
+-- Final database schema with all migrations applied
+-- This file contains the final state of all tables, views, functions, procedures, and triggers
+
+-- ============================================
+-- TABLES
+-- ============================================
+
 CREATE TABLE student (
                          student_id   SERIAL PRIMARY KEY,
                          name         TEXT,
                          surname      TEXT,
                          email        TEXT UNIQUE,
-                         password     TEXT,
-                         bonus_amount INT CHECK (bonus_amount >= 0)
+                         password     TEXT
 );
 
 CREATE TABLE teacher (
@@ -34,7 +40,8 @@ CREATE TABLE course (
                         end_date    DATE,
                         price       INT CHECK (price >= 0),
                         currency_id INT,
-                        CHECK (start_date <= end_date)
+                        CHECK (start_date <= end_date),
+                        CHECK (start_date >= CURRENT_DATE)
 );
 
 CREATE TABLE teachers_courses (
@@ -73,7 +80,7 @@ CREATE TABLE homework (
                           homework_id   SERIAL PRIMARY KEY,
                           name          TEXT,
                           description   TEXT,
-                          deadline_time TIME
+                          deadline_time TIMESTAMPTZ
 );
 
 CREATE TABLE homeworks_tasks (
@@ -119,8 +126,7 @@ CREATE TABLE student_answer (
                                 student_id         INT,
                                 task_id            INT,
                                 answer             TEXT,
-                                status_homework_id INT,
-                                points             INT CHECK (points >= 0)
+                                status_answer_id   INT
 );
 
 CREATE TABLE homework_result (
@@ -154,9 +160,85 @@ CREATE TABLE material (
                           material_id SERIAL PRIMARY KEY,
                           source      TEXT,
                           extension   VARCHAR(7) CHECK (extension ~ '^[a-zA-Z0-9]{1,7}$'),
-    size        INT CHECK (size >= 0)
+                          size        INT CHECK (size >= 0)
 );
 
+CREATE TABLE transaction_history (
+                                     history_id     BIGSERIAL PRIMARY KEY,
+                                     transaction_id INT,
+                                     student_id     INT,
+                                     status_id      INT,
+                                     total_price    INT,
+                                     operation      TEXT NOT NULL,
+                                     changed_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+                                     changed_by     TEXT,
+                                     old_row        JSONB,
+                                     new_row        JSONB
+);
+
+-- ============================================
+-- FOREIGN KEYS
+-- ============================================
+
+ALTER TABLE course ADD FOREIGN KEY (category_id) REFERENCES category(category_id);
+ALTER TABLE course ADD FOREIGN KEY (currency_id) REFERENCES currency(currency_id);
+
+ALTER TABLE teachers_courses 
+    ADD FOREIGN KEY (teacher_id) REFERENCES teacher(teacher_id),
+    ADD FOREIGN KEY (course_id) REFERENCES course(course_id),
+    ADD CONSTRAINT one_teacher_per_course UNIQUE (course_id);
+
+ALTER TABLE course_lessons 
+    ADD FOREIGN KEY (course_id) REFERENCES course(course_id);
+ALTER TABLE course_lessons 
+    ADD FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id);
+
+ALTER TABLE lessons_materials 
+    ADD FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id),
+    ADD FOREIGN KEY (material_id) REFERENCES material(material_id),
+    ADD CONSTRAINT one_lesson_per_material UNIQUE (material_id);
+
+ALTER TABLE lesson_homeworks 
+    ADD FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id),
+    ADD FOREIGN KEY (homework_id) REFERENCES homework(homework_id),
+    ADD CONSTRAINT one_lesson_per_homework UNIQUE (homework_id);
+
+ALTER TABLE homeworks_tasks 
+    ADD FOREIGN KEY (homework_id) REFERENCES homework(homework_id);
+ALTER TABLE homeworks_tasks 
+    ADD FOREIGN KEY (task_id) REFERENCES task(task_id);
+
+ALTER TABLE subcategory ADD FOREIGN KEY (category_id) REFERENCES category(category_id);
+
+ALTER TABLE task 
+    ADD FOREIGN KEY (level_id) REFERENCES level(level_id);
+ALTER TABLE task 
+    ADD FOREIGN KEY (category_id) REFERENCES category(category_id);
+ALTER TABLE task 
+    ADD FOREIGN KEY (subcategory_id) REFERENCES subcategory(subcategory_id);
+
+ALTER TABLE student_answer 
+    ADD FOREIGN KEY (student_id) REFERENCES student(student_id),
+    ADD FOREIGN KEY (task_id) REFERENCES task(task_id),
+    ADD FOREIGN KEY (status_answer_id) REFERENCES status_answer(status_answer_id);
+
+ALTER TABLE homework_result 
+    ADD FOREIGN KEY (student_answer_id) REFERENCES student_answer(student_answer_id),
+    ADD FOREIGN KEY (student_id) REFERENCES student(student_id),
+    ADD FOREIGN KEY (task_id) REFERENCES task(task_id),
+    ADD FOREIGN KEY (status_homework_id) REFERENCES status_homework(status_homework_id);
+
+ALTER TABLE "transaction" 
+    ADD FOREIGN KEY (student_id) REFERENCES student(student_id),
+    ADD FOREIGN KEY (status_id) REFERENCES status_transaction(status_transaction_id);
+
+ALTER TABLE transactions_courses 
+    ADD FOREIGN KEY (transaction_id) REFERENCES "transaction"(transaction_id),
+    ADD FOREIGN KEY (course_id) REFERENCES course(course_id);
+
+-- ============================================
+-- VIEWS
+-- ============================================
 
 CREATE OR REPLACE VIEW v_transactions_report AS
 SELECT
@@ -184,69 +266,41 @@ GROUP BY
     t.total_price,
     st.name;
 
-CREATE OR REPLACE VIEW v_student_course_activity AS
+CREATE OR REPLACE VIEW v_student_category_stats AS
 SELECT
-    st.student_id,
-    st.name       AS student_name,
-    st.surname    AS student_surname,
-    c.course_id,
-    c.name        AS course_name,
-    c.description AS course_description,
-    cat.name      AS category_name,
-    cur.name      AS currency_name,
-    c.price       AS course_price,
-    COUNT(DISTINCT l.lesson_id)    AS lessons_count,
-    COUNT(DISTINCT hw.homework_id) AS homeworks_count,
-    COUNT(DISTINCT sa.task_id)     AS solved_tasks_count,
-    COALESCE(SUM(sa.points), 0)    AS total_points_earned
-FROM student st
-         LEFT JOIN "transaction" tr
-                   ON tr.student_id = st.student_id
-         LEFT JOIN transactions_courses tc
-                   ON tc.transaction_id = tr.transaction_id
-         LEFT JOIN course c
-                   ON c.course_id = tc.course_id
-         LEFT JOIN category cat
-                   ON cat.category_id = c.category_id
-         LEFT JOIN currency cur
-                   ON cur.currency_id = c.currency_id
-         LEFT JOIN course_lessons cl
-                   ON cl.course_id = c.course_id
-         LEFT JOIN lesson l
-                   ON l.lesson_id = cl.lesson_id
-         LEFT JOIN lesson_homeworks lh
-                   ON lh.lesson_id = l.lesson_id
-         LEFT JOIN homework hw
-                   ON hw.homework_id = lh.homework_id
-         LEFT JOIN homeworks_tasks ht
-                   ON ht.homework_id = hw.homework_id
-         LEFT JOIN student_answer sa
-                   ON sa.student_id = st.student_id
-                       AND sa.task_id = ht.task_id
+    s.student_id,
+    s.name       AS student_name,
+    s.surname    AS student_surname,
+
+    c.category_id,
+    c.name       AS category_name,
+
+    COUNT(DISTINCT sa.task_id)               AS solved_tasks_count,
+    COALESCE(SUM(CASE WHEN sa.status_answer_id = 1 THEN t.points ELSE 0 END), 0) AS points_earned,
+    COALESCE(SUM(t.points), 0)               AS points_possible,
+    CASE
+        WHEN COALESCE(SUM(t.points), 0) = 0
+            THEN 0
+        ELSE ROUND(100.0 * COALESCE(SUM(CASE WHEN sa.status_answer_id = 1 THEN t.points ELSE 0 END), 0)::NUMERIC
+                        / NULLIF(SUM(t.points), 0), 2)
+        END AS success_percent
+FROM student s
+         JOIN student_answer sa
+              ON sa.student_id = s.student_id
+         JOIN task t
+              ON t.task_id = sa.task_id
+         LEFT JOIN category c
+                   ON c.category_id = t.category_id
 GROUP BY
-    st.student_id,
-    st.name,
-    st.surname,
-    c.course_id,
-    c.name,
-    c.description,
-    cat.name,
-    cur.name,
-    c.price;
+    s.student_id,
+    s.name,
+    s.surname,
+    c.category_id,
+    c.name;
 
-
-CREATE TABLE transaction_history (
-                                     history_id     BIGSERIAL PRIMARY KEY,
-                                     transaction_id INT,
-                                     student_id     INT,
-                                     status_id      INT,
-                                     total_price    INT,
-                                     operation      TEXT NOT NULL,
-                                     changed_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-                                     changed_by     TEXT,
-                                     old_row        JSONB,
-                                     new_row        JSONB
-);
+-- ============================================
+-- FUNCTIONS
+-- ============================================
 
 CREATE OR REPLACE FUNCTION fn_log_transaction_history()
 RETURNS TRIGGER AS
@@ -275,9 +329,9 @@ BEGIN
             NULL,
             to_jsonb(NEW)
         );
-RETURN NEW;
+        RETURN NEW;
 
-ELSIF TG_OP = 'UPDATE' THEN
+    ELSIF TG_OP = 'UPDATE' THEN
         INSERT INTO transaction_history (
             transaction_id,
             student_id,
@@ -300,9 +354,9 @@ ELSIF TG_OP = 'UPDATE' THEN
             to_jsonb(OLD),
             to_jsonb(NEW)
         );
-RETURN NEW;
+        RETURN NEW;
 
-ELSIF TG_OP = 'DELETE' THEN
+    ELSIF TG_OP = 'DELETE' THEN
         INSERT INTO transaction_history (
             transaction_id,
             student_id,
@@ -325,19 +379,12 @@ ELSIF TG_OP = 'DELETE' THEN
             to_jsonb(OLD),
             NULL
         );
-RETURN OLD;
-END IF;
+        RETURN OLD;
+    END IF;
 
-RETURN NULL;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_transaction_history
-    AFTER INSERT OR UPDATE OR DELETE
-                    ON "transaction"
-                        FOR EACH ROW
-                        EXECUTE FUNCTION fn_log_transaction_history();
-
 
 CREATE TYPE transaction_report_row AS (
     transaction_id  INT,
@@ -347,7 +394,7 @@ CREATE TYPE transaction_report_row AS (
     status_name     TEXT,
     total_price     INT,
     courses_names   TEXT
-    );
+);
 
 CREATE OR REPLACE FUNCTION get_transactions_report_dynamic(
     p_status_name   TEXT DEFAULT NULL,
@@ -359,7 +406,7 @@ LANGUAGE plpgsql
 AS
 $$
 DECLARE
-v_sql TEXT;
+    v_sql TEXT;
 BEGIN
     v_sql := '
         SELECT
@@ -384,15 +431,15 @@ BEGIN
 
     IF p_status_name IS NOT NULL AND p_status_name != '' THEN
         v_sql := v_sql || ' AND st.name = ' || quote_literal(p_status_name);
-END IF;
+    END IF;
 
     IF p_min_total IS NOT NULL AND p_min_total != 0 THEN
         v_sql := v_sql || ' AND t.total_price >= ' || p_min_total;
-END IF;
+    END IF;
 
-    IF p_max_total IS NOT NULL AND p_max_total !=0 THEN
+    IF p_max_total IS NOT NULL AND p_max_total != 0 THEN
         v_sql := v_sql || ' AND t.total_price <= ' || p_max_total;
-END IF;
+    END IF;
 
     v_sql := v_sql || '
         GROUP BY
@@ -405,9 +452,13 @@ END IF;
         ORDER BY t.transaction_id
     ';
 
-RETURN QUERY EXECUTE v_sql;
+    RETURN QUERY EXECUTE v_sql;
 END;
 $$;
+
+-- ============================================
+-- PROCEDURES
+-- ============================================
 
 CREATE OR REPLACE PROCEDURE bulk_update_transaction_status(
     IN  p_old_status_id INT,
@@ -429,47 +480,26 @@ BEGIN
 
     IF p_min_total IS NOT NULL THEN
         v_sql := v_sql || ' AND t.total_price >= ' || p_min_total;
-END IF;
+    END IF;
 
     IF p_max_total IS NOT NULL THEN
         v_sql := v_sql || ' AND t.total_price <= ' || p_max_total;
-END IF;
+    END IF;
 
-EXECUTE v_sql;
-GET DIAGNOSTICS v_affected_rows = ROW_COUNT;
+    EXECUTE v_sql;
+    GET DIAGNOSTICS v_affected_rows = ROW_COUNT;
 
-RAISE NOTICE 'Updated % rows in "transaction"', v_affected_rows;
+    RAISE NOTICE 'Updated % rows in "transaction"', v_affected_rows;
 END;
 $$;
 
-CREATE OR REPLACE VIEW v_student_category_stats AS
-SELECT
-    s.student_id,
-    s.name       AS student_name,
-    s.surname    AS student_surname,
+-- ============================================
+-- TRIGGERS
+-- ============================================
 
-    c.category_id,
-    c.name       AS category_name,
+CREATE TRIGGER trg_transaction_history
+    AFTER INSERT OR UPDATE OR DELETE
+    ON "transaction"
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_log_transaction_history();
 
-    COUNT(DISTINCT sa.task_id)               AS solved_tasks_count,
-    COALESCE(SUM(sa.points), 0)              AS points_earned,
-    COALESCE(SUM(t.points), 0)               AS points_possible,
-    CASE
-        WHEN COALESCE(SUM(t.points), 0) = 0
-            THEN 0
-        ELSE ROUND(100.0 * COALESCE(SUM(sa.points), 0)::NUMERIC
-                        / NULLIF(SUM(t.points), 0), 2)
-        END AS success_percent                    -- процент набранных баллов
-FROM student s
-         JOIN student_answer sa
-              ON sa.student_id = s.student_id
-         JOIN task t
-              ON t.task_id = sa.task_id
-         LEFT JOIN category c
-                   ON c.category_id = t.category_id
-GROUP BY
-    s.student_id,
-    s.name,
-    s.surname,
-    c.category_id,
-    c.name;

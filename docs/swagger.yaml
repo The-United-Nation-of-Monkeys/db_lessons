@@ -210,10 +210,7 @@ definitions:
     properties:
       answer:
         type: string
-      points:
-        minimum: 0
-        type: integer
-      status_homework_id:
+      status_answer_id:
         type: integer
       student_id:
         type: integer
@@ -428,9 +425,7 @@ definitions:
     properties:
       answer:
         type: string
-      points:
-        type: integer
-      status_homework_id:
+      status_answer_id:
         type: integer
       student_answer_id:
         type: integer
@@ -655,10 +650,7 @@ definitions:
     properties:
       answer:
         type: string
-      points:
-        minimum: 0
-        type: integer
-      status_homework_id:
+      status_answer_id:
         type: integer
       student_id:
         type: integer

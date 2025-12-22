@@ -6211,11 +6211,7 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
-                "points": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "status_homework_id": {
+                "status_answer_id": {
                     "type": "integer"
                 },
                 "student_id": {
@@ -6538,10 +6534,7 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
-                "points": {
-                    "type": "integer"
-                },
-                "status_homework_id": {
+                "status_answer_id": {
                     "type": "integer"
                 },
                 "student_answer_id": {
@@ -6887,11 +6880,7 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
-                "points": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "status_homework_id": {
+                "status_answer_id": {
                     "type": "integer"
                 },
                 "student_id": {

@@ -40,6 +40,13 @@ definitions:
       start_date:
         type: string
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CourseLessonsDTO:
+    properties:
+      course_id:
+        type: integer
+      lesson_id:
+        type: integer
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateCategoryDTO:
     properties:
       name:
@@ -66,6 +73,16 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateCourseLessonsDTO:
+    properties:
+      course_id:
+        type: integer
+      lesson_id:
+        type: integer
+    required:
+    - course_id
+    - lesson_id
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateCurrencyDTO:
     properties:
@@ -102,6 +119,16 @@ definitions:
     - student_id
     - task_id
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateHomeworksTasksDTO:
+    properties:
+      homework_id:
+        type: integer
+      task_id:
+        type: integer
+    required:
+    - homework_id
+    - task_id
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLessonDTO:
     properties:
       description:
@@ -116,6 +143,26 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLessonHomeworksDTO:
+    properties:
+      homework_id:
+        type: integer
+      lesson_id:
+        type: integer
+    required:
+    - homework_id
+    - lesson_id
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLessonsMaterialsDTO:
+    properties:
+      lesson_id:
+        type: integer
+      material_id:
+        type: integer
+    required:
+    - lesson_id
+    - material_id
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLevelDTO:
     properties:
@@ -240,6 +287,16 @@ definitions:
     - password
     - surname
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateTeachersCoursesDTO:
+    properties:
+      course_id:
+        type: integer
+      teacher_id:
+        type: integer
+    required:
+    - course_id
+    - teacher_id
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateTransactionDTO:
     properties:
       status_id:
@@ -251,6 +308,16 @@ definitions:
         type: integer
     required:
     - student_id
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateTransactionsCoursesDTO:
+    properties:
+      course_id:
+        type: integer
+      transaction_id:
+        type: integer
+    required:
+    - course_id
+    - transaction_id
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CurrencyDTO:
     properties:
@@ -285,6 +352,13 @@ definitions:
       task_id:
         type: integer
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworksTasksDTO:
+    properties:
+      homework_id:
+        type: integer
+      task_id:
+        type: integer
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonDTO:
     properties:
       description:
@@ -299,6 +373,20 @@ definitions:
         type: string
       video_link:
         type: string
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonHomeworksDTO:
+    properties:
+      homework_id:
+        type: integer
+      lesson_id:
+        type: integer
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonsMaterialsDTO:
+    properties:
+      lesson_id:
+        type: integer
+      material_id:
+        type: integer
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LevelDTO:
     properties:
@@ -353,6 +441,27 @@ definitions:
         type: integer
       task_id:
         type: integer
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentCategoryStatsDTO:
+    properties:
+      category_id:
+        type: integer
+      category_name:
+        type: string
+      points_earned:
+        type: integer
+      points_possible:
+        type: integer
+      solved_tasks_count:
+        type: integer
+      student_id:
+        type: integer
+      student_name:
+        type: string
+      student_surname:
+        type: string
+      success_percent:
+        type: number
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentDTO:
     properties:
@@ -410,6 +519,13 @@ definitions:
       teacher_id:
         type: integer
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TeachersCoursesDTO:
+    properties:
+      course_id:
+        type: integer
+      teacher_id:
+        type: integer
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionDTO:
     properties:
       status_id:
@@ -436,6 +552,13 @@ definitions:
       total_price:
         type: integer
       transactions_id:
+        type: integer
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionsCoursesDTO:
+    properties:
+      course_id:
+        type: integer
+      transaction_id:
         type: integer
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.UpdateCategoryDTO:
@@ -782,6 +905,137 @@ paths:
       summary: Update category
       tags:
       - Categories
+  /course-lessons:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between courses and lessons
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CourseLessonsDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all course-lesson relations
+      tags:
+      - Course Lessons
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between course and lesson
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateCourseLessonsDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CourseLessonsDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create course-lesson relation
+      tags:
+      - Course Lessons
+  /course-lessons/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by lesson ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete course-lesson relation
+      tags:
+      - Course Lessons
+    get:
+      consumes:
+      - application/json
+      description: Get relation by lesson ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CourseLessonsDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get course-lesson relation by lesson ID
+      tags:
+      - Course Lessons
   /courses:
     get:
       consumes:
@@ -1345,6 +1599,147 @@ paths:
       summary: Create homework
       tags:
       - Homeworks
+  /homeworks-tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between homeworks and tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworksTasksDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all homework-task relations
+      tags:
+      - Homework Tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between homework and task
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateHomeworksTasksDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworksTasksDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create homework-task relation
+      tags:
+      - Homework Tasks
+  /homeworks-tasks/{task_id}/{homework_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by task ID and homework ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: Homework ID
+        in: path
+        name: homework_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete homework-task relation
+      tags:
+      - Homework Tasks
+    get:
+      consumes:
+      - application/json
+      description: Get relation by task ID and homework ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: Homework ID
+        in: path
+        name: homework_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworksTasksDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get homework-task relation by IDs
+      tags:
+      - Homework Tasks
   /homeworks/{id}:
     delete:
       consumes:
@@ -1458,6 +1853,147 @@ paths:
       summary: Update homework
       tags:
       - Homeworks
+  /lesson-homeworks:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between lessons and homeworks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonHomeworksDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all lesson-homework relations
+      tags:
+      - Lesson Homeworks
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between lesson and homework
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLessonHomeworksDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonHomeworksDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create lesson-homework relation
+      tags:
+      - Lesson Homeworks
+  /lesson-homeworks/{lesson_id}/{homework_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by lesson ID and homework ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: lesson_id
+        required: true
+        type: integer
+      - description: Homework ID
+        in: path
+        name: homework_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete lesson-homework relation
+      tags:
+      - Lesson Homeworks
+    get:
+      consumes:
+      - application/json
+      description: Get relation by lesson ID and homework ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: lesson_id
+        required: true
+        type: integer
+      - description: Homework ID
+        in: path
+        name: homework_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonHomeworksDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get lesson-homework relation by IDs
+      tags:
+      - Lesson Homeworks
   /lessons:
     get:
       consumes:
@@ -1514,6 +2050,147 @@ paths:
       summary: Create lesson
       tags:
       - Lessons
+  /lessons-materials:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between lessons and materials
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonsMaterialsDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all lesson-material relations
+      tags:
+      - Lesson Materials
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between lesson and material
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateLessonsMaterialsDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonsMaterialsDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create lesson-material relation
+      tags:
+      - Lesson Materials
+  /lessons-materials/{lesson_id}/{material_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by lesson ID and material ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: lesson_id
+        required: true
+        type: integer
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete lesson-material relation
+      tags:
+      - Lesson Materials
+    get:
+      consumes:
+      - application/json
+      description: Get relation by lesson ID and material ID
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: lesson_id
+        required: true
+        type: integer
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LessonsMaterialsDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get lesson-material relation by IDs
+      tags:
+      - Lesson Materials
   /lessons/{id}:
     delete:
       consumes:
@@ -1965,6 +2642,111 @@ paths:
       summary: Update material
       tags:
       - Materials
+  /reports/student-category-stats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for all students by categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentCategoryStatsDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all student category statistics
+      tags:
+      - Reports
+  /reports/student-category-stats/categories/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for all students in a specific category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentCategoryStatsDTO'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get student category statistics by category ID
+      tags:
+      - Reports
+  /reports/student-category-stats/students/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for a specific student by categories
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentCategoryStatsDTO'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get student category statistics by student ID
+      tags:
+      - Reports
   /status-answers:
     get:
       consumes:
@@ -3204,6 +3986,147 @@ paths:
       summary: Create teacher
       tags:
       - Teachers
+  /teachers-courses:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between teachers and courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TeachersCoursesDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all teacher-course relations
+      tags:
+      - Teacher Courses
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between teacher and course
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateTeachersCoursesDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TeachersCoursesDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create teacher-course relation
+      tags:
+      - Teacher Courses
+  /teachers-courses/{course_id}/{teacher_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by course ID and teacher ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Teacher ID
+        in: path
+        name: teacher_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete teacher-course relation
+      tags:
+      - Teacher Courses
+    get:
+      consumes:
+      - application/json
+      description: Get relation by course ID and teacher ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Teacher ID
+        in: path
+        name: teacher_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TeachersCoursesDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get teacher-course relation by IDs
+      tags:
+      - Teacher Courses
   /teachers/{id}:
     delete:
       consumes:
@@ -3373,6 +4296,147 @@ paths:
       summary: Create transaction
       tags:
       - Transactions
+  /transactions-courses:
+    get:
+      consumes:
+      - application/json
+      description: Get all relations between transactions and courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionsCoursesDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all transaction-course relations
+      tags:
+      - Transaction Courses
+    post:
+      consumes:
+      - application/json
+      description: Create a new relation between transaction and course
+      parameters:
+      - description: Relation data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateTransactionsCoursesDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionsCoursesDTO'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create transaction-course relation
+      tags:
+      - Transaction Courses
+  /transactions-courses/{transaction_id}/{course_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete relation by transaction ID and course ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transaction_id
+        required: true
+        type: integer
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete transaction-course relation
+      tags:
+      - Transaction Courses
+    get:
+      consumes:
+      - application/json
+      description: Get relation by transaction ID and course ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transaction_id
+        required: true
+        type: integer
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.TransactionsCoursesDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get transaction-course relation by IDs
+      tags:
+      - Transaction Courses
   /transactions/{id}:
     delete:
       consumes:

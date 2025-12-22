@@ -7,7 +7,6 @@ import (
 
 	"github.com/Flussen/swagger-fiber-v3"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/docs"
-	_ "github.com/The-United-Nation-of-Monkeys/db_lessons/docs"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/config"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/container/initializer"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
@@ -167,11 +166,60 @@ func NewController(server *fiber.App, cfg *config.Config, services *initializer.
 	transactionHandler := NewTransactionHandler(services.TransactionService)
 	api.Post("/transactions", transactionHandler.Create)
 	api.Get("/transactions", transactionHandler.GetAll)
+	// Специфичные роуты должны быть определены ПЕРЕД параметризованными
 	api.Get("/transactions/report", transactionHandler.GetReportByParams)
 	api.Post("/transactions/bulk-update-status", transactionHandler.BulkUpdateTransactionStatus)
 	api.Get("/transactions/:id", transactionHandler.GetByID)
 	api.Put("/transactions/:id", transactionHandler.Update)
 	api.Delete("/transactions/:id", transactionHandler.Delete)
+
+	// Student Category Stats routes (reports)
+	studentCategoryStatsHandler := NewStudentCategoryStatsHandler(services.StudentCategoryStatsService)
+	api.Get("/reports/student-category-stats", studentCategoryStatsHandler.GetAll)
+	api.Get("/reports/student-category-stats/students/:id", studentCategoryStatsHandler.GetByStudentID)
+	api.Get("/reports/student-category-stats/categories/:id", studentCategoryStatsHandler.GetByCategoryID)
+
+	// Teachers-Courses relations routes
+	teachersCoursesHandler := NewTeachersCoursesHandler(services.TeachersCoursesService)
+	api.Post("/teachers-courses", teachersCoursesHandler.Create)
+	api.Get("/teachers-courses", teachersCoursesHandler.GetAll)
+	api.Get("/teachers-courses/:course_id/:teacher_id", teachersCoursesHandler.GetByID)
+	api.Delete("/teachers-courses/:course_id/:teacher_id", teachersCoursesHandler.Delete)
+
+	// Course-Lessons relations routes
+	courseLessonsHandler := NewCourseLessonsHandler(services.CourseLessonsService)
+	api.Post("/course-lessons", courseLessonsHandler.Create)
+	api.Get("/course-lessons", courseLessonsHandler.GetAll)
+	api.Get("/course-lessons/:id", courseLessonsHandler.GetByID)
+	api.Delete("/course-lessons/:id", courseLessonsHandler.Delete)
+
+	// Lessons-Materials relations routes
+	lessonsMaterialsHandler := NewLessonsMaterialsHandler(services.LessonsMaterialsService)
+	api.Post("/lessons-materials", lessonsMaterialsHandler.Create)
+	api.Get("/lessons-materials", lessonsMaterialsHandler.GetAll)
+	api.Get("/lessons-materials/:lesson_id/:material_id", lessonsMaterialsHandler.GetByID)
+	api.Delete("/lessons-materials/:lesson_id/:material_id", lessonsMaterialsHandler.Delete)
+
+	// Lesson-Homeworks relations routes
+	lessonHomeworksHandler := NewLessonHomeworksHandler(services.LessonHomeworksService)
+	api.Post("/lesson-homeworks", lessonHomeworksHandler.Create)
+	api.Get("/lesson-homeworks", lessonHomeworksHandler.GetAll)
+	api.Get("/lesson-homeworks/:lesson_id/:homework_id", lessonHomeworksHandler.GetByID)
+	api.Delete("/lesson-homeworks/:lesson_id/:homework_id", lessonHomeworksHandler.Delete)
+
+	// Homeworks-Tasks relations routes
+	homeworksTasksHandler := NewHomeworksTasksHandler(services.HomeworksTasksService)
+	api.Post("/homeworks-tasks", homeworksTasksHandler.Create)
+	api.Get("/homeworks-tasks", homeworksTasksHandler.GetAll)
+	api.Get("/homeworks-tasks/:task_id/:homework_id", homeworksTasksHandler.GetByID)
+	api.Delete("/homeworks-tasks/:task_id/:homework_id", homeworksTasksHandler.Delete)
+
+	// Transactions-Courses relations routes
+	transactionsCoursesHandler := NewTransactionsCoursesHandler(services.TransactionsCoursesService)
+	api.Post("/transactions-courses", transactionsCoursesHandler.Create)
+	api.Get("/transactions-courses", transactionsCoursesHandler.GetAll)
+	api.Get("/transactions-courses/:transaction_id/:course_id", transactionsCoursesHandler.GetByID)
+	api.Delete("/transactions-courses/:transaction_id/:course_id", transactionsCoursesHandler.Delete)
 
 	api.Get("/ping", func(ctx fiber.Ctx) error {
 		return ctx.Status(200).SendString("pong")

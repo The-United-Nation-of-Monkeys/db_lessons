@@ -20,9 +20,16 @@ type ServiceList struct {
 	StatusHomeworkService    service.StatusHomeworkServiceInterface
 	StatusAnswerService      service.StatusAnswerServiceInterface
 	StatusTransactionService service.StatusTransactionServiceInterface
-	StudentAnswerService     service.StudentAnswerServiceInterface
-	HomeworkResultService    service.HomeworkResultServiceInterface
-	TransactionService       service.TransactionServiceInterface
+	StudentAnswerService           service.StudentAnswerServiceInterface
+	HomeworkResultService          service.HomeworkResultServiceInterface
+	TransactionService             service.TransactionServiceInterface
+	StudentCategoryStatsService    service.StudentCategoryStatsServiceInterface
+	TeachersCoursesService         service.TeachersCoursesServiceInterface
+	CourseLessonsService           service.CourseLessonsServiceInterface
+	LessonsMaterialsService        service.LessonsMaterialsServiceInterface
+	LessonHomeworksService         service.LessonHomeworksServiceInterface
+	HomeworksTasksService          service.HomeworksTasksServiceInterface
+	TransactionsCoursesService     service.TransactionsCoursesServiceInterface
 }
 
 func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool) *ServiceList {
@@ -41,8 +48,15 @@ func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool) *Service
 		StatusHomeworkService:    service.NewStatusHomeworkService(dbPool, repositories.StatusHomeworkRepository),
 		StatusAnswerService:      service.NewStatusAnswerService(dbPool, repositories.StatusAnswerRepository),
 		StatusTransactionService: service.NewStatusTransactionService(dbPool, repositories.StatusTransactionRepository),
-		StudentAnswerService:     service.NewStudentAnswerService(dbPool, repositories.StudentAnswerRepository),
-		HomeworkResultService:    service.NewHomeworkResultService(dbPool, repositories.HomeworkResultRepository),
-		TransactionService:       service.NewTransactionService(dbPool, repositories.TransactionRepository),
+		StudentAnswerService:           service.NewStudentAnswerService(dbPool, repositories.StudentAnswerRepository),
+		HomeworkResultService:          service.NewHomeworkResultService(dbPool, repositories.HomeworkResultRepository),
+		TransactionService:             service.NewTransactionService(dbPool, repositories.TransactionRepository),
+		StudentCategoryStatsService:    service.NewStudentCategoryStatsService(dbPool, repositories.StudentCategoryStatsRepository),
+		TeachersCoursesService:         service.NewTeachersCoursesService(dbPool, repositories.TeachersCoursesRepository),
+		CourseLessonsService:           service.NewCourseLessonsService(dbPool, repositories.CourseLessonsRepository),
+		LessonsMaterialsService:        service.NewLessonsMaterialsService(dbPool, repositories.LessonsMaterialsRepository),
+		LessonHomeworksService:         service.NewLessonHomeworksService(dbPool, repositories.LessonHomeworksRepository),
+		HomeworksTasksService:          service.NewHomeworksTasksService(dbPool, repositories.HomeworksTasksRepository),
+		TransactionsCoursesService:     service.NewTransactionsCoursesService(dbPool, repositories.TransactionsCoursesRepository),
 	}
 }

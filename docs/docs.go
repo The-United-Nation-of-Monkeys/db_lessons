@@ -6235,10 +6235,6 @@ const docTemplate = `{
                 "surname"
             ],
             "properties": {
-                "bonus_amount": {
-                    "type": "integer",
-                    "minimum": 0
-                },
                 "email": {
                     "type": "string"
                 },
@@ -6594,9 +6590,6 @@ const docTemplate = `{
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentDTO": {
             "type": "object",
             "properties": {
-                "bonus_amount": {
-                    "type": "integer"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -6912,10 +6905,6 @@ const docTemplate = `{
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.UpdateStudentDTO": {
             "type": "object",
             "properties": {
-                "bonus_amount": {
-                    "type": "integer",
-                    "minimum": 0
-                },
                 "email": {
                     "type": "string"
                 },

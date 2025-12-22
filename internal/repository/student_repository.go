@@ -21,12 +21,12 @@ func NewStudentRepository() *StudentRepository {
 }
 
 func (r *StudentRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateStudentDTO) (*dto.StudentDTO, error) {
-	query := `INSERT INTO student (name, surname, email, password, bonus_amount) 
-			  VALUES ($1, $2, $3, $4, $5) 
-			  RETURNING student_id, name, surname, email, password, bonus_amount`
+	query := `INSERT INTO student (name, surname, email, password) 
+			  VALUES ($1, $2, $3, $4) 
+			  RETURNING student_id, name, surname, email, password`
 	var student dto.StudentDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password, data.BonusAmount).
-		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password, &student.BonusAmount)
+	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password).
+		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +34,9 @@ func (r *StudentRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.Cre
 }
 
 func (r *StudentRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.StudentDTO, error) {
-	query := `SELECT student_id, name, surname, email, password, bonus_amount FROM student WHERE student_id = $1`
+	query := `SELECT student_id, name, surname, email, password FROM student WHERE student_id = $1`
 	var student dto.StudentDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password, &student.BonusAmount)
+	err := tx.QueryRow(ctx, query, id).Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (r *StudentRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dt
 }
 
 func (r *StudentRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.StudentDTO, error) {
-	query := `SELECT student_id, name, surname, email, password, bonus_amount FROM student`
+	query := `SELECT student_id, name, surname, email, password FROM student`
 	rows, err := tx.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (r *StudentRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Stude
 	var students []*dto.StudentDTO
 	for rows.Next() {
 		var student dto.StudentDTO
-		if err := rows.Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password, &student.BonusAmount); err != nil {
+		if err := rows.Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password); err != nil {
 			return nil, err
 		}
 		students = append(students, &student)
@@ -67,13 +67,12 @@ func (r *StudentRepository) Update(ctx context.Context, tx pgx.Tx, id int, data 
 			  name = COALESCE($1, name),
 			  surname = COALESCE($2, surname),
 			  email = COALESCE($3, email),
-			  password = COALESCE($4, password),
-			  bonus_amount = COALESCE($5, bonus_amount)
-			  WHERE student_id = $6
-			  RETURNING student_id, name, surname, email, password, bonus_amount`
+			  password = COALESCE($4, password)
+			  WHERE student_id = $5
+			  RETURNING student_id, name, surname, email, password`
 	var student dto.StudentDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password, data.BonusAmount, id).
-		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password, &student.BonusAmount)
+	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password, id).
+		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password)
 	if err != nil {
 		return nil, err
 	}

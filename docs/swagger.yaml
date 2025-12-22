@@ -225,9 +225,6 @@ definitions:
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateStudentDTO:
     properties:
-      bonus_amount:
-        minimum: 0
-        type: integer
       email:
         type: string
       name:
@@ -465,8 +462,6 @@ definitions:
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StudentDTO:
     properties:
-      bonus_amount:
-        type: integer
       email:
         type: string
       name:
@@ -672,9 +667,6 @@ definitions:
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.UpdateStudentDTO:
     properties:
-      bonus_amount:
-        minimum: 0
-        type: integer
       email:
         type: string
       name:

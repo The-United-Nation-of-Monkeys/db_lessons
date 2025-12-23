@@ -514,3 +514,154 @@ CREATE TRIGGER trg_transaction_history
     FOR EACH ROW
     EXECUTE FUNCTION fn_log_transaction_history();
 
+-- ============================================
+-- ROLES AND PERMISSIONS
+-- ============================================
+
+-- Create roles (without login - these are group roles)
+CREATE ROLE app_base    NOLOGIN;
+CREATE ROLE app_admin   NOLOGIN;
+CREATE ROLE app_teacher NOLOGIN;
+CREATE ROLE app_student NOLOGIN;
+
+-- Create login roles (users that can connect to database)
+CREATE ROLE app_base_user
+    LOGIN PASSWORD '123';
+
+CREATE ROLE app_admin_user
+    LOGIN PASSWORD '123';
+
+CREATE ROLE app_teacher_user
+    LOGIN PASSWORD '123';
+
+CREATE ROLE app_student_user
+    LOGIN PASSWORD '123';
+
+-- Grant group roles to login roles
+GRANT app_base    TO app_base_user;
+GRANT app_admin   TO app_admin_user;
+GRANT app_teacher TO app_teacher_user;
+GRANT app_student TO app_student_user;
+
+-- Set schema owner
+ALTER SCHEMA public OWNER TO app_admin;
+
+-- Grant usage on schema to all roles
+GRANT USAGE ON SCHEMA public
+    TO app_base, app_admin, app_teacher, app_student;
+
+-- ============================================
+-- BASE ROLE (for registration: POST /students, POST /teachers)
+-- ============================================
+GRANT SELECT, INSERT
+    ON TABLE student, teacher
+    TO app_base;
+
+-- ============================================
+-- ADMIN ROLE (full access to all tables)
+-- ============================================
+GRANT SELECT, INSERT, UPDATE, DELETE
+    ON TABLE
+        student, teacher, admin,
+        category, currency, course,
+        teachers_courses, course_lessons, lessons_materials,
+        lesson, lesson_homeworks, homework, homeworks_tasks,
+        level, subcategory, task,
+        status_homework, status_answer, student_answer,
+        homework_result, status_transaction, "transaction",
+        transactions_courses, material, transaction_history
+    TO app_admin;
+
+-- ============================================
+-- TEACHER ROLE
+-- ============================================
+
+-- Read access (all tables)
+GRANT SELECT
+    ON TABLE
+        student, teacher, admin,
+        category, currency, course,
+        teachers_courses, course_lessons, lessons_materials,
+        lesson, lesson_homeworks, homework, homeworks_tasks,
+        level, subcategory, task,
+        status_homework, status_answer, student_answer,
+        homework_result, status_transaction, "transaction",
+        transactions_courses, material, transaction_history
+    TO app_teacher;
+
+-- Write access (can create/edit educational content)
+GRANT SELECT, INSERT, UPDATE, DELETE
+    ON TABLE
+        category, currency, course,
+        teachers_courses, course_lessons, lessons_materials,
+        lesson, lesson_homeworks, homework, homeworks_tasks,
+        level, subcategory, task,
+        status_homework, status_answer,
+        homework_result, material
+    TO app_teacher;
+
+-- Can update own teacher record
+GRANT SELECT, UPDATE
+    ON TABLE teacher
+    TO app_teacher;
+
+-- ============================================
+-- STUDENT ROLE
+-- ============================================
+
+-- Read access (all tables)
+GRANT SELECT
+    ON TABLE
+        student, teacher, admin,
+        category, currency, course,
+        teachers_courses, course_lessons, lessons_materials,
+        lesson, lesson_homeworks, homework, homeworks_tasks,
+        level, subcategory, task,
+        status_homework, status_answer, student_answer,
+        homework_result, status_transaction, "transaction",
+        transactions_courses, material, transaction_history
+    TO app_student;
+
+-- Write access (can create/edit own answers and transactions)
+GRANT SELECT, INSERT, UPDATE, DELETE
+    ON TABLE
+        student_answer,
+        "transaction", transactions_courses
+    TO app_student;
+
+-- Can update own student record
+GRANT SELECT, UPDATE
+    ON TABLE student
+    TO app_student;
+
+-- ============================================
+-- SEQUENCES (for SERIAL columns)
+-- ============================================
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public
+    TO app_base, app_admin, app_teacher, app_student;
+
+-- Grant on future sequences
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT USAGE, SELECT ON SEQUENCES
+    TO app_base, app_admin, app_teacher, app_student;
+
+-- ============================================
+-- VIEWS
+-- ============================================
+GRANT SELECT
+    ON v_transactions_report, v_student_category_stats
+    TO app_admin, app_teacher, app_student;
+
+-- ============================================
+-- FUNCTIONS AND PROCEDURES
+-- ============================================
+-- Grant execute on functions and procedures
+GRANT EXECUTE ON FUNCTION
+    get_transactions_report_dynamic,
+    fn_log_transaction_history
+    TO app_admin, app_teacher, app_student;
+
+GRANT EXECUTE ON PROCEDURE
+    bulk_update_transaction_status
+    TO app_admin;
+

@@ -91,10 +91,10 @@ func GetPermissions(apiVersion int) map[string][]string {
 
 		// Status Answers
 		fmt.Sprintf("GET /api/v%d/status-answers", apiVersion):        {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/status-answers", apiVersion):       {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/status-answers", apiVersion):       {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/status-answers/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("PUT /api/v%d/status-answers/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/status-answers/:id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("PUT /api/v%d/status-answers/:id", apiVersion):    {"teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/status-answers/:id", apiVersion): {"teacher", "admin"},
 
 		// Status Transactions
 		fmt.Sprintf("GET /api/v%d/status-transactions", apiVersion):        {"student", "teacher", "admin"},
@@ -105,26 +105,26 @@ func GetPermissions(apiVersion int) map[string][]string {
 
 		// Student Answers
 		fmt.Sprintf("GET /api/v%d/student-answers", apiVersion):        {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/student-answers", apiVersion):       {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/student-answers", apiVersion):       {"student", "admin"},
 		fmt.Sprintf("GET /api/v%d/student-answers/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("PUT /api/v%d/student-answers/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/student-answers/:id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("PUT /api/v%d/student-answers/:id", apiVersion):    {"student", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/student-answers/:id", apiVersion): {"student", "admin"},
 
 		// Homework Results
 		fmt.Sprintf("GET /api/v%d/homework-results", apiVersion):        {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/homework-results", apiVersion):       {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/homework-results", apiVersion):       {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/homework-results/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("PUT /api/v%d/homework-results/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/homework-results/:id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("PUT /api/v%d/homework-results/:id", apiVersion):    {"teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/homework-results/:id", apiVersion): {"teacher", "admin"},
 
 		// Transactions
 		fmt.Sprintf("GET /api/v%d/transactions", apiVersion):                     {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/transactions", apiVersion):                    {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/transactions", apiVersion):                    {"student", "admin"},
 		fmt.Sprintf("GET /api/v%d/transactions/report", apiVersion):              {"student", "teacher", "admin"},
 		fmt.Sprintf("POST /api/v%d/transactions/bulk-update-status", apiVersion): {"admin"},
 		fmt.Sprintf("GET /api/v%d/transactions/:id", apiVersion):                 {"student", "teacher", "admin"},
-		fmt.Sprintf("PUT /api/v%d/transactions/:id", apiVersion):                 {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/transactions/:id", apiVersion):              {"student", "teacher", "admin"},
+		fmt.Sprintf("PUT /api/v%d/transactions/:id", apiVersion):                 {"student", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/transactions/:id", apiVersion):              {"student", "admin"},
 
 		// Reports
 		fmt.Sprintf("GET /api/v%d/reports/student-category-stats", apiVersion):                {"student", "teacher", "admin"},
@@ -133,33 +133,33 @@ func GetPermissions(apiVersion int) map[string][]string {
 
 		// Relations - Teachers Courses
 		fmt.Sprintf("GET /api/v%d/teachers-courses", apiVersion):                           {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/teachers-courses", apiVersion):                          {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/teachers-courses", apiVersion):                          {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/teachers-courses/:course_id/:teacher_id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/teachers-courses/:course_id/:teacher_id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/teachers-courses/:course_id/:teacher_id", apiVersion): {"teacher", "admin"},
 
 		// Relations - Course Lessons
 		fmt.Sprintf("GET /api/v%d/course-lessons", apiVersion):        {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/course-lessons", apiVersion):       {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/course-lessons", apiVersion):       {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/course-lessons/:id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/course-lessons/:id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/course-lessons/:id", apiVersion): {"teacher", "admin"},
 
 		// Relations - Lessons Materials
 		fmt.Sprintf("GET /api/v%d/lessons-materials", apiVersion):                            {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/lessons-materials", apiVersion):                           {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/lessons-materials", apiVersion):                           {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/lessons-materials/:lesson_id/:material_id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/lessons-materials/:lesson_id/:material_id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/lessons-materials/:lesson_id/:material_id", apiVersion): {"teacher", "admin"},
 
 		// Relations - Lesson Homeworks
 		fmt.Sprintf("GET /api/v%d/lesson-homeworks", apiVersion):                            {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/lesson-homeworks", apiVersion):                           {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/lesson-homeworks", apiVersion):                           {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/lesson-homeworks/:lesson_id/:homework_id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/lesson-homeworks/:lesson_id/:homework_id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/lesson-homeworks/:lesson_id/:homework_id", apiVersion): {"teacher", "admin"},
 
 		// Relations - Homeworks Tasks
 		fmt.Sprintf("GET /api/v%d/homeworks-tasks", apiVersion):                          {"student", "teacher", "admin"},
-		fmt.Sprintf("POST /api/v%d/homeworks-tasks", apiVersion):                         {"student", "teacher", "admin"},
+		fmt.Sprintf("POST /api/v%d/homeworks-tasks", apiVersion):                         {"teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/homeworks-tasks/:task_id/:homework_id", apiVersion):    {"student", "teacher", "admin"},
-		fmt.Sprintf("DELETE /api/v%d/homeworks-tasks/:task_id/:homework_id", apiVersion): {"student", "teacher", "admin"},
+		fmt.Sprintf("DELETE /api/v%d/homeworks-tasks/:task_id/:homework_id", apiVersion): {"teacher", "admin"},
 
 		// Relations - Transactions Courses
 		fmt.Sprintf("GET /api/v%d/transactions-courses", apiVersion):                               {"student", "teacher", "admin"},

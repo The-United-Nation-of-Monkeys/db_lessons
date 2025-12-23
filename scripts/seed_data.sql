@@ -476,12 +476,11 @@ JOIN task t ON t.description = v.task_description
 ON CONFLICT DO NOTHING;
 
 -- Homework Results - 24 results
-INSERT INTO homework_result (student_answer_id, student_id, task_id, answer, status_homework_id, points)
+INSERT INTO homework_result (student_answer_id, student_id, task_id, status_homework_id, points)
 SELECT 
     sa.student_answer_id,
     s.student_id,
     t.task_id,
-    v.answer,
     v.status_homework_id,
     v.points
 FROM (VALUES

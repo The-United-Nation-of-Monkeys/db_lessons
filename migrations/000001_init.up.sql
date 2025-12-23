@@ -138,12 +138,12 @@ CREATE TABLE student_answer (
 );
 
 CREATE TABLE homework_result (
-                                 student_answer_id  SERIAL PRIMARY KEY,
-                                 student_id         INT,
-                                 task_id            INT,
-                                 answer             TEXT,
-    status_homework_id INT,
-                                 points             INT CHECK (points >= 0)
+                                 homework_result_id  SERIAL PRIMARY KEY,
+                                 student_answer_id   INT,
+                                 student_id          INT,
+                                 task_id             INT,
+                                 status_homework_id  INT,
+                                 points              INT CHECK (points >= 0)
 );
 
 CREATE TABLE status_transaction (
@@ -283,22 +283,25 @@ SELECT
     c.category_id,
     c.name       AS category_name,
 
-    COUNT(DISTINCT sa.task_id)               AS solved_tasks_count,
-    COALESCE(SUM(CASE WHEN sa.status_answer_id = 1 THEN t.points ELSE 0 END), 0) AS points_earned,
-    COALESCE(SUM(t.points), 0)               AS points_possible,
+    COUNT(DISTINCT hr.task_id)               AS solved_tasks_count,
+    COALESCE(SUM(hr.points), 0)              AS points_earned,
+    COALESCE(SUM(t.points), 0)              AS points_possible,
     CASE
         WHEN COALESCE(SUM(t.points), 0) = 0
             THEN 0
-        ELSE ROUND(100.0 * COALESCE(SUM(CASE WHEN sa.status_answer_id = 1 THEN t.points ELSE 0 END), 0)::NUMERIC
-                        / NULLIF(SUM(t.points), 0), 2)
+        ELSE ROUND(100.0 * COALESCE(SUM(hr.points), 0)::NUMERIC
+                        / SUM(t.points), 2)
         END AS success_percent
 FROM student s
-         JOIN student_answer sa
-              ON sa.student_id = s.student_id
+         JOIN homework_result hr
+              ON hr.student_id = s.student_id
+         JOIN status_homework sh
+              ON sh.status_homework_id = hr.status_homework_id
          JOIN task t
-              ON t.task_id = sa.task_id
+              ON t.task_id = hr.task_id
          LEFT JOIN category c
                    ON c.category_id = t.category_id
+WHERE sh.name = 'Зачтено'
 GROUP BY
     s.student_id,
     s.name,

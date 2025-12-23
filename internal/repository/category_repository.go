@@ -21,7 +21,6 @@ func NewCategoryRepository() *CategoryRepository {
 }
 
 func (r *CategoryRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCategoryDTO) (*dto.CategoryDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -72,7 +71,6 @@ func (r *CategoryRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto
 }
 
 func (r *CategoryRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCategoryDTO) (*dto.CategoryDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -94,7 +92,6 @@ func (r *CategoryRepository) Update(ctx context.Context, conn *pgx.Conn, id int,
 }
 
 func (r *CategoryRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

@@ -21,7 +21,6 @@ func NewTaskRepository() *TaskRepository {
 }
 
 func (r *TaskRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTaskDTO) (*dto.TaskDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +74,6 @@ func (r *TaskRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.Tas
 }
 
 func (r *TaskRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTaskDTO) (*dto.TaskDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -107,7 +105,6 @@ func (r *TaskRepository) Update(ctx context.Context, conn *pgx.Conn, id int, dat
 }
 
 func (r *TaskRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

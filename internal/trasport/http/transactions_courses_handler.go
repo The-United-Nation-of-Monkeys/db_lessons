@@ -21,7 +21,6 @@ func NewTransactionsCoursesHandler(transactionsCoursesService service.Transactio
 	}
 }
 
-// Create
 // @Summary Create transaction-course relation
 // @Description Create a new relation between transaction and course
 // @Tags Transaction Courses
@@ -52,7 +51,6 @@ func (h *TransactionsCoursesHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get transaction-course relation by IDs
 // @Description Get relation by transaction ID and course ID
 // @Tags Transaction Courses
@@ -90,7 +88,6 @@ func (h *TransactionsCoursesHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all transaction-course relations
 // @Description Get all relations between transactions and courses
 // @Tags Transaction Courses
@@ -111,7 +108,6 @@ func (h *TransactionsCoursesHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete transaction-course relation
 // @Description Delete relation by transaction ID and course ID
 // @Tags Transaction Courses

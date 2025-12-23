@@ -29,7 +29,6 @@ func NewAuthService(repo repository.AuthRepositoryInterface, jwtService *jwt.Ser
 }
 
 func (s *AuthService) Login(ctx context.Context, data *dto.LoginDTO) (*dto.AuthResponseDTO, error) {
-	// Используем базового пользователя для авторизации (регистрация/логин)
 	conn, err := s.baseService.GetDBConn(ctx, "base")
 	if err != nil {
 		return nil, err
@@ -53,7 +52,6 @@ func (s *AuthService) Login(ctx context.Context, data *dto.LoginDTO) (*dto.AuthR
 		return nil, err
 	}
 
-	// Generate tokens
 	accessClaims := s.jwtService.GetClaims(user.UserID, user.Role, jwt.AccessToken)
 	refreshClaims := s.jwtService.GetClaims(user.UserID, user.Role, jwt.RefreshToken)
 
@@ -79,7 +77,6 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 		return nil, errors.New("invalid refresh token")
 	}
 
-	// Используем базового пользователя для обновления токена
 	conn, err := s.baseService.GetDBConn(ctx, "base")
 	if err != nil {
 		return nil, err
@@ -91,7 +88,6 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 		return nil, err
 	}
 
-	// Generate new tokens
 	accessClaims := s.jwtService.GetClaims(user.UserID, user.Role, jwt.AccessToken)
 	newRefreshClaims := s.jwtService.GetClaims(user.UserID, user.Role, jwt.RefreshToken)
 

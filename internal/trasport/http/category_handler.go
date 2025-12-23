@@ -21,7 +21,6 @@ func NewCategoryHandler(categoryService service.CategoryServiceInterface) *Categ
 	}
 }
 
-// Create
 // @Summary Create category
 // @Description Create a new category
 // @Tags Categories
@@ -52,7 +51,6 @@ func (h *CategoryHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get category by ID
 // @Description Get category by ID
 // @Tags Categories
@@ -81,7 +79,6 @@ func (h *CategoryHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(category)
 }
 
-// GetAll
 // @Summary Get all categorys
 // @Description Get all categorys
 // @Tags Categories
@@ -102,7 +99,6 @@ func (h *CategoryHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(categorys)
 }
 
-// Update
 // @Summary Update category
 // @Description Update category by ID
 // @Tags Categories
@@ -142,7 +138,6 @@ func (h *CategoryHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete category
 // @Description Delete category by ID
 // @Tags Categories

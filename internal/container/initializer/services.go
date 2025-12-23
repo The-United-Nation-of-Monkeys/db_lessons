@@ -39,7 +39,6 @@ type ServiceList struct {
 }
 
 func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceList {
-	// Load JWT keys
 	privateKeyPath := cfg.JWT.GetPrivateKeyPath()
 	publicKeyPath := cfg.JWT.GetPublicKeyPath()
 
@@ -53,7 +52,6 @@ func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceLi
 		panic("failed to load public key: " + err.Error())
 	}
 
-	// Parse time durations
 	refreshTimeExp, err := time.ParseDuration(cfg.JWT.RefreshTimeExp)
 	if err != nil {
 		panic("failed to parse refresh time exp: " + err.Error())
@@ -64,10 +62,8 @@ func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceLi
 		panic("failed to parse access time exp: " + err.Error())
 	}
 
-	// Create JWT service
 	jwtService := jwt.NewServiceJWT(privateKey, publicKey, refreshTimeExp, accessTimeExp)
 
-	// Create BaseService with role mappings
 	roleMap := map[string]service.RoleConfig{
 		"admin":   {User: "app_admin_user"},
 		"teacher": {User: "app_teacher_user"},
@@ -75,7 +71,6 @@ func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceLi
 	}
 	baseService := service.NewBaseService(roleMap, cfg.DataBase, "app_base_user")
 
-	// Create auth service - использует базового пользователя через BaseService
 	authService := service.NewAuthService(repositories.AuthRepository, jwtService, baseService)
 
 	return &ServiceList{

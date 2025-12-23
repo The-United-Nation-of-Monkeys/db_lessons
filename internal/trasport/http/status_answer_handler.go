@@ -21,7 +21,6 @@ func NewStatusAnswerHandler(statusAnswerService service.StatusAnswerServiceInter
 	}
 }
 
-// Create
 // @Summary Create statusanswer
 // @Description Create a new statusanswer
 // @Tags StatusAnswers
@@ -52,7 +51,6 @@ func (h *StatusAnswerHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get statusanswer by ID
 // @Description Get statusanswer by ID
 // @Tags StatusAnswers
@@ -81,7 +79,6 @@ func (h *StatusAnswerHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(statusanswer)
 }
 
-// GetAll
 // @Summary Get all statusanswers
 // @Description Get all statusanswers
 // @Tags StatusAnswers
@@ -102,7 +99,6 @@ func (h *StatusAnswerHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(statusanswers)
 }
 
-// Update
 // @Summary Update statusanswer
 // @Description Update statusanswer by ID
 // @Tags StatusAnswers
@@ -142,7 +138,6 @@ func (h *StatusAnswerHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete statusanswer
 // @Description Delete statusanswer by ID
 // @Tags StatusAnswers

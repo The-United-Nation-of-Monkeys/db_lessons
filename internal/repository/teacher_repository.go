@@ -22,13 +22,11 @@ func NewTeacherRepository() *TeacherRepository {
 }
 
 func (r *TeacherRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTeacherDTO) (*dto.TeacherDTO, error) {
-	// Hash password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +90,6 @@ func (r *TeacherRepository) Update(ctx context.Context, conn *pgx.Conn, id int, 
 		hashedPassword = &hashedStr
 	}
 
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -121,7 +118,6 @@ func (r *TeacherRepository) Update(ctx context.Context, conn *pgx.Conn, id int, 
 }
 
 func (r *TeacherRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

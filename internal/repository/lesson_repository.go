@@ -21,7 +21,6 @@ func NewLessonRepository() *LessonRepository {
 }
 
 func (r *LessonRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateLessonDTO) (*dto.LessonDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +74,6 @@ func (r *LessonRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.L
 }
 
 func (r *LessonRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateLessonDTO) (*dto.LessonDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -105,7 +103,6 @@ func (r *LessonRepository) Update(ctx context.Context, conn *pgx.Conn, id int, d
 }
 
 func (r *LessonRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

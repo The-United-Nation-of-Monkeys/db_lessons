@@ -21,7 +21,6 @@ func NewHomeworkHandler(homeworkService service.HomeworkServiceInterface) *Homew
 	}
 }
 
-// Create
 // @Summary Create homework
 // @Description Create a new homework
 // @Tags Homeworks
@@ -52,7 +51,6 @@ func (h *HomeworkHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get homework by ID
 // @Description Get homework by ID
 // @Tags Homeworks
@@ -81,7 +79,6 @@ func (h *HomeworkHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(homework)
 }
 
-// GetAll
 // @Summary Get all homeworks
 // @Description Get all homeworks
 // @Tags Homeworks
@@ -102,7 +99,6 @@ func (h *HomeworkHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(homeworks)
 }
 
-// Update
 // @Summary Update homework
 // @Description Update homework by ID
 // @Tags Homeworks
@@ -142,7 +138,6 @@ func (h *HomeworkHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete homework
 // @Description Delete homework by ID
 // @Tags Homeworks

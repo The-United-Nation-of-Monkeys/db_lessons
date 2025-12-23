@@ -21,7 +21,6 @@ func NewLessonHandler(lessonService service.LessonServiceInterface) *LessonHandl
 	}
 }
 
-// Create
 // @Summary Create lesson
 // @Description Create a new lesson
 // @Tags Lessons
@@ -52,7 +51,6 @@ func (h *LessonHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get lesson by ID
 // @Description Get lesson by ID
 // @Tags Lessons
@@ -81,7 +79,6 @@ func (h *LessonHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(lesson)
 }
 
-// GetAll
 // @Summary Get all lessons
 // @Description Get all lessons
 // @Tags Lessons
@@ -102,7 +99,6 @@ func (h *LessonHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(lessons)
 }
 
-// Update
 // @Summary Update lesson
 // @Description Update lesson by ID
 // @Tags Lessons
@@ -142,7 +138,6 @@ func (h *LessonHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete lesson
 // @Description Delete lesson by ID
 // @Tags Lessons

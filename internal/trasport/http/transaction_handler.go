@@ -21,7 +21,6 @@ func NewTransactionHandler(transactionService service.TransactionServiceInterfac
 	}
 }
 
-// Create
 // @Summary Create transaction
 // @Description Create a new transaction
 // @Tags Transactions
@@ -52,7 +51,6 @@ func (h *TransactionHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get transaction by ID
 // @Description Get transaction by ID
 // @Tags Transactions
@@ -81,7 +79,6 @@ func (h *TransactionHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(transaction)
 }
 
-// GetAll
 // @Summary Get all transactions
 // @Description Get all transactions
 // @Tags Transactions
@@ -102,7 +99,6 @@ func (h *TransactionHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(transactions)
 }
 
-// Update
 // @Summary Update transaction
 // @Description Update transaction by ID
 // @Tags Transactions
@@ -142,7 +138,6 @@ func (h *TransactionHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete transaction
 // @Description Delete transaction by ID
 // @Tags Transactions
@@ -172,7 +167,6 @@ func (h *TransactionHandler) Delete(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusNoContent).Send(nil)
 }
 
-// GetReportByParams
 // @Summary Get transaction report by parameters
 // @Description Get transaction report filtered by status name, min total, max total
 // @Tags Transactions
@@ -211,7 +205,6 @@ func (h *TransactionHandler) GetReportByParams(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(reports)
 }
 
-// BulkUpdateTransactionStatus
 // @Summary Bulk update transaction status
 // @Description Bulk update transaction status by old status id, new status id and optional price range
 // @Tags Transactions

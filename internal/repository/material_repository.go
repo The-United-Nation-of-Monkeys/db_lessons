@@ -21,7 +21,6 @@ func NewMaterialRepository() *MaterialRepository {
 }
 
 func (r *MaterialRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateMaterialDTO) (*dto.MaterialDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +74,6 @@ func (r *MaterialRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto
 }
 
 func (r *MaterialRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateMaterialDTO) (*dto.MaterialDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -103,7 +101,6 @@ func (r *MaterialRepository) Update(ctx context.Context, conn *pgx.Conn, id int,
 }
 
 func (r *MaterialRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

@@ -21,7 +21,6 @@ func NewLevelHandler(levelService service.LevelServiceInterface) *LevelHandler {
 	}
 }
 
-// Create
 // @Summary Create level
 // @Description Create a new level
 // @Tags Levels
@@ -52,7 +51,6 @@ func (h *LevelHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get level by ID
 // @Description Get level by ID
 // @Tags Levels
@@ -81,7 +79,6 @@ func (h *LevelHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(level)
 }
 
-// GetAll
 // @Summary Get all levels
 // @Description Get all levels
 // @Tags Levels
@@ -102,7 +99,6 @@ func (h *LevelHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(levels)
 }
 
-// Update
 // @Summary Update level
 // @Description Update level by ID
 // @Tags Levels
@@ -142,7 +138,6 @@ func (h *LevelHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete level
 // @Description Delete level by ID
 // @Tags Levels

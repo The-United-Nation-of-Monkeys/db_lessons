@@ -87,10 +87,8 @@ func New(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	// Try to get migrations path from environment variable first
 	migrationsPath := os.Getenv("MIGRATIONS_PATH")
 	if migrationsPath == "" {
-		// Fallback to relative path calculation
 		_, b, _, _ := runtime.Caller(0)
 		basePath := filepath.Dir(b)
 		migrationsPath = filepath.Join(basePath, "../../migrations")
@@ -116,22 +114,18 @@ func New(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// QueryTracer логирует SQL запросы
 type QueryTracer struct{}
 
 func (qt *QueryTracer) TraceQueryStart(ctx context.Context, conn *pgx.Conn, data pgx.TraceQueryStartData) context.Context {
-	// Сохраняем время начала запроса в контексте
 	startTime := time.Now()
 	ctx = context.WithValue(ctx, "query_start_time", startTime)
 	
-	// Получаем пользователя из контекста
 	dbUser := "unknown"
 	if user, ok := ctx.Value("db_user").(string); ok {
 		dbUser = user
 	}
 	
 	if localLogger := logger.GetLoggerFromCtx(ctx); localLogger != nil {
-		// Логируем начало запроса
 		localLogger.Info(ctx, "SQL Query Start",
 			zap.String("db_user", dbUser),
 			zap.String("sql", truncateSQL(data.SQL, 200)),
@@ -148,7 +142,6 @@ func (qt *QueryTracer) TraceQueryEnd(ctx context.Context, conn *pgx.Conn, data p
 			dbUser = user
 		}
 		
-		// Получаем время начала из контекста
 		var duration time.Duration
 		if startTime, ok := ctx.Value("query_start_time").(time.Time); ok {
 			duration = time.Since(startTime)
@@ -193,10 +186,8 @@ func NewConn(ctx context.Context, cfg Config) (*pgx.Conn, error) {
 		return nil, err
 	}
 
-	// Добавляем tracer для логирования SQL запросов
 	if logger.GetLoggerFromCtx(ctx) != nil {
 		config.Tracer = &QueryTracer{}
-		// Сохраняем пользователя в контекст для логирования
 		ctx = context.WithValue(ctx, "db_user", cfg.User)
 	}
 
@@ -208,13 +199,9 @@ func NewConn(ctx context.Context, cfg Config) (*pgx.Conn, error) {
 	return conn, nil
 }
 
-// RunMigrations применяет миграции к базе данных
-// Использует указанного пользователя для подключения (обычно postgres для миграций)
 func RunMigrations(ctx context.Context, cfg Config) error {
-	// Try to get migrations path from environment variable first
 	migrationsPath := os.Getenv("MIGRATIONS_PATH")
 	if migrationsPath == "" {
-		// Fallback to relative path calculation
 		_, b, _, _ := runtime.Caller(0)
 		basePath := filepath.Dir(b)
 		migrationsPath = filepath.Join(basePath, "../../migrations")

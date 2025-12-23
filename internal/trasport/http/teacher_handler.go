@@ -21,7 +21,6 @@ func NewTeacherHandler(teacherService service.TeacherServiceInterface) *TeacherH
 	}
 }
 
-// Create
 // @Summary Create teacher
 // @Description Create a new teacher
 // @Tags Teachers
@@ -51,7 +50,6 @@ func (h *TeacherHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get teacher by ID
 // @Description Get teacher by ID
 // @Tags Teachers
@@ -80,7 +78,6 @@ func (h *TeacherHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(teacher)
 }
 
-// GetAll
 // @Summary Get all teachers
 // @Description Get all teachers
 // @Tags Teachers
@@ -101,7 +98,6 @@ func (h *TeacherHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(teachers)
 }
 
-// Update
 // @Summary Update teacher
 // @Description Update teacher by ID
 // @Tags Teachers
@@ -141,7 +137,6 @@ func (h *TeacherHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete teacher
 // @Description Delete teacher by ID
 // @Tags Teachers

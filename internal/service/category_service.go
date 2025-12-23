@@ -35,7 +35,6 @@ func (s *CategoryService) Create(ctx context.Context, data *dto.CreateCategoryDT
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -57,7 +56,6 @@ func (s *CategoryService) GetByID(ctx context.Context, id int) (*dto.CategoryDTO
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -84,7 +82,6 @@ func (s *CategoryService) GetAll(ctx context.Context) ([]*dto.CategoryDTO, error
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -106,7 +103,6 @@ func (s *CategoryService) Update(ctx context.Context, id int, data *dto.UpdateCa
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -139,7 +135,6 @@ func (s *CategoryService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))

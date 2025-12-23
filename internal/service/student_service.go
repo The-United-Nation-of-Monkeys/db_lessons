@@ -35,7 +35,6 @@ func (s *StudentService) Create(ctx context.Context, data *dto.CreateStudentDTO)
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	// Получаем соединение с БД (для регистрации используем базового пользователя)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -62,7 +61,6 @@ func (s *StudentService) GetByID(ctx context.Context, id int) (*dto.StudentDTO, 
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -89,7 +87,6 @@ func (s *StudentService) GetAll(ctx context.Context) ([]*dto.StudentDTO, error) 
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -111,7 +108,6 @@ func (s *StudentService) Update(ctx context.Context, id int, data *dto.UpdateStu
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))
@@ -149,7 +145,6 @@ func (s *StudentService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	// Получаем соединение с БД (роль будет получена из контекста)
 	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))

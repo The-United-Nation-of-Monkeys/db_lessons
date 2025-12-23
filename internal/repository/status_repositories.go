@@ -6,7 +6,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// StatusHomeworkRepository
 type StatusHomeworkRepositoryInterface interface {
 	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateStatusHomeworkDTO) (*dto.StatusHomeworkDTO, error)
 	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.StatusHomeworkDTO, error)
@@ -76,7 +75,6 @@ func (r *StatusHomeworkRepository) Delete(ctx context.Context, conn *pgx.Conn, i
 	return err
 }
 
-// StatusAnswerRepository
 type StatusAnswerRepositoryInterface interface {
 	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateStatusAnswerDTO) (*dto.StatusAnswerDTO, error)
 	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.StatusAnswerDTO, error)
@@ -146,7 +144,6 @@ func (r *StatusAnswerRepository) Delete(ctx context.Context, conn *pgx.Conn, id 
 	return err
 }
 
-// StatusTransactionRepository
 type StatusTransactionRepositoryInterface interface {
 	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateStatusTransactionDTO) (*dto.StatusTransactionDTO, error)
 	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.StatusTransactionDTO, error)

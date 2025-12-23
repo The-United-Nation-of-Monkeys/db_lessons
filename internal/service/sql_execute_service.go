@@ -29,7 +29,6 @@ func (s *SQLExecuteService) ExecuteSQL(ctx context.Context, data *dto.ExecuteSQL
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func ExecuteSQL")
 
-	// Используем admin пользователя для выполнения SQL запросов
 	conn, err := s.baseService.GetDBConn(ctx, "admin")
 	if err != nil {
 		localLogger.Error(ctx, "get db conn error", zap.Error(err))

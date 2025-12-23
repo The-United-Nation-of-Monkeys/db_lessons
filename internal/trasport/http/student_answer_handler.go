@@ -21,7 +21,6 @@ func NewStudentAnswerHandler(studentAnswerService service.StudentAnswerServiceIn
 	}
 }
 
-// Create
 // @Summary Create studentanswer
 // @Description Create a new studentanswer
 // @Tags StudentAnswers
@@ -52,7 +51,6 @@ func (h *StudentAnswerHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get studentanswer by ID
 // @Description Get studentanswer by ID
 // @Tags StudentAnswers
@@ -81,7 +79,6 @@ func (h *StudentAnswerHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(studentanswer)
 }
 
-// GetAll
 // @Summary Get all studentanswers
 // @Description Get all studentanswers
 // @Tags StudentAnswers
@@ -102,7 +99,6 @@ func (h *StudentAnswerHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(studentanswers)
 }
 
-// Update
 // @Summary Update studentanswer
 // @Description Update studentanswer by ID
 // @Tags StudentAnswers
@@ -142,7 +138,6 @@ func (h *StudentAnswerHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete studentanswer
 // @Description Delete studentanswer by ID
 // @Tags StudentAnswers

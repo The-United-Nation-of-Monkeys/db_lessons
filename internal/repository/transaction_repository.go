@@ -24,7 +24,6 @@ func NewTransactionRepository() *TransactionRepository {
 }
 
 func (r *TransactionRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTransactionDTO) (*dto.TransactionDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -78,7 +77,6 @@ func (r *TransactionRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*
 }
 
 func (r *TransactionRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -106,7 +104,6 @@ func (r *TransactionRepository) Update(ctx context.Context, conn *pgx.Conn, id i
 }
 
 func (r *TransactionRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err
@@ -123,7 +120,6 @@ func (r *TransactionRepository) Delete(ctx context.Context, conn *pgx.Conn, id i
 }
 
 func (r *TransactionRepository) GetReportByParams(ctx context.Context, conn *pgx.Conn, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error) {
-	// Используем разбор composite type через (row).field_name
 	query := `SELECT 
 		transaction_id,
 		student_id,
@@ -188,7 +184,6 @@ func (r *TransactionRepository) GetReportByParams(ctx context.Context, conn *pgx
 }
 
 func (r *TransactionRepository) BulkUpdateTransactionStatus(ctx context.Context, conn *pgx.Conn, params *dto.BulkUpdateTransactionStatusDTO) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

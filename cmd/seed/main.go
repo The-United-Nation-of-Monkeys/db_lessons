@@ -21,14 +21,12 @@ func main() {
 	)
 	flag.Parse()
 
-	// Load configuration
 	cfg, err := config.New()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Initialize logger
 	ctx := context.Background()
 	ctx, err = logger.New(ctx, "seed")
 	if err != nil {
@@ -41,9 +39,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Build database connection string
 	dbURL := fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		"postgres:
 		cfg.DataBase.User,
 		cfg.DataBase.Password,
 		cfg.DataBase.Host,
@@ -53,7 +50,6 @@ func main() {
 
 	log.Info(ctx, "Connecting to database", zap.String("host", cfg.DataBase.Host), zap.String("database", cfg.DataBase.Name))
 
-	// Connect to database
 	conn, err := pgx.Connect(ctx, dbURL)
 	if err != nil {
 		log.Error(ctx, "Failed to connect to database", zap.Error(err))
@@ -61,7 +57,6 @@ func main() {
 	}
 	defer conn.Close(ctx)
 
-	// Verify connection
 	if err := conn.Ping(ctx); err != nil {
 		log.Error(ctx, "Failed to ping database", zap.Error(err))
 		os.Exit(1)
@@ -69,7 +64,6 @@ func main() {
 
 	log.Info(ctx, "Connected to database successfully")
 
-	// Read seed file
 	seedPath, err := filepath.Abs(*seedFile)
 	if err != nil {
 		log.Error(ctx, "Failed to get absolute path", zap.Error(err))
@@ -91,14 +85,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Split SQL file into individual statements
-	// Remove comments and empty lines, then split by semicolon
 	sqlContent := string(content)
 	statements := parseSQL(sqlContent)
 
 	log.Info(ctx, "Executing seed statements", zap.Int("count", len(statements)))
 
-	// Begin transaction
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		log.Error(ctx, "Failed to begin transaction", zap.Error(err))
@@ -112,14 +103,12 @@ func main() {
 		}
 	}()
 
-	// Execute each statement
 	successCount := 0
 	for i, stmt := range statements {
 		if strings.TrimSpace(stmt) == "" {
 			continue
 		}
 
-		// Skip TRUNCATE and other DDL statements that might fail
 		stmtUpper := strings.ToUpper(strings.TrimSpace(stmt))
 		if strings.HasPrefix(stmtUpper, "TRUNCATE") && strings.Contains(stmtUpper, "CASCADE") {
 			log.Info(ctx, "Skipping TRUNCATE statement", zap.Int("statement", i+1))
@@ -128,7 +117,6 @@ func main() {
 
 		_, err = tx.Exec(ctx, stmt)
 		if err != nil {
-			// Check if it's a "DO NOTHING" conflict (expected for seed data)
 			if strings.Contains(err.Error(), "duplicate key") || 
 			   strings.Contains(err.Error(), "already exists") ||
 			   strings.Contains(err.Error(), "ON CONFLICT") {
@@ -145,7 +133,6 @@ func main() {
 		successCount++
 	}
 
-	// Commit transaction
 	if err = tx.Commit(ctx); err != nil {
 		log.Error(ctx, "Failed to commit transaction", zap.Error(err))
 		os.Exit(1)
@@ -155,32 +142,25 @@ func main() {
 		zap.Int("total_statements", len(statements)),
 		zap.Int("executed_statements", successCount))
 
-	// Display summary
 	displaySummary(ctx, conn, log)
 }
 
-// parseSQL splits SQL content into individual statements
 func parseSQL(content string) []string {
-	// Remove single-line comments (-- ...)
 	lines := strings.Split(content, "\n")
 	var cleanedLines []string
 	for _, line := range lines {
-		// Skip comment lines
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "--") {
 			continue
 		}
-		// Remove inline comments
 		if idx := strings.Index(line, "--"); idx != -1 {
 			line = line[:idx]
 		}
 		cleanedLines = append(cleanedLines, line)
 	}
 
-	// Join lines and split by semicolon
 	joined := strings.Join(cleanedLines, "\n")
 	
-	// Split by semicolon, but preserve semicolons inside strings and functions
 	var statements []string
 	var current strings.Builder
 	var inString bool
@@ -206,9 +186,8 @@ func parseSQL(content string) []string {
 		} else {
 			current.WriteByte(char)
 			if char == stringChar {
-				// Check if it's escaped
 				if i+1 < len(joined) && joined[i+1] == stringChar {
-					i++ // Skip next quote
+					i++ 
 					current.WriteByte(joined[i])
 				} else {
 					inString = false
@@ -217,7 +196,6 @@ func parseSQL(content string) []string {
 		}
 	}
 	
-	// Add remaining statement
 	if current.Len() > 0 {
 		stmt := strings.TrimSpace(current.String())
 		if stmt != "" {
@@ -228,7 +206,6 @@ func parseSQL(content string) []string {
 	return statements
 }
 
-// truncateString truncates a string to maxLen characters
 func truncateString(s string, maxLen int) string {
 	if len(s) <= maxLen {
 		return s
@@ -236,7 +213,6 @@ func truncateString(s string, maxLen int) string {
 	return s[:maxLen] + "..."
 }
 
-// displaySummary displays a summary of seeded data
 func displaySummary(ctx context.Context, conn *pgx.Conn, log *logger.Logger) {
 	queries := map[string]string{
 		"students":   "SELECT COUNT(*) FROM student",

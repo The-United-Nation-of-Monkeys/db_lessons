@@ -17,7 +17,6 @@ func NewAuthHandler(service service.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 
-// Login
 // @Summary Login user
 // @Description Login with email and password
 // @Tags Auth
@@ -49,7 +48,6 @@ func (h *AuthHandler) Login(ctx fiber.Ctx) error {
 		return exception.InternalServerError()
 	}
 
-	// Set cookies
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "access-token",
 		Value:    user.AccessToken,
@@ -69,7 +67,6 @@ func (h *AuthHandler) Login(ctx fiber.Ctx) error {
 	return ctx.JSON(user)
 }
 
-// RefreshToken
 // @Summary Refresh access token
 // @Description Refresh access token using refresh token
 // @Tags Auth
@@ -84,10 +81,8 @@ func (h *AuthHandler) Login(ctx fiber.Ctx) error {
 func (h *AuthHandler) RefreshToken(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
-	// Try to get from cookie first
 	refreshToken := ctx.Cookies("refresh-token")
 	if refreshToken == "" {
-		// Try to get from body
 		body := new(dto.RefreshTokenDTO)
 		if err := ctx.Bind().JSON(body); err != nil {
 			localLogger.Info(ctx.Context(), "parse body exception", zap.Error(err))
@@ -106,7 +101,6 @@ func (h *AuthHandler) RefreshToken(ctx fiber.Ctx) error {
 		return exception.BadRequest("invalid refresh token")
 	}
 
-	// Set cookies
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "access-token",
 		Value:    user.AccessToken,

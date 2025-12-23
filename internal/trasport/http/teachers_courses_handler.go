@@ -21,7 +21,6 @@ func NewTeachersCoursesHandler(teachersCoursesService service.TeachersCoursesSer
 	}
 }
 
-// Create
 // @Summary Create teacher-course relation
 // @Description Create a new relation between teacher and course
 // @Tags Teacher Courses
@@ -52,7 +51,6 @@ func (h *TeachersCoursesHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get teacher-course relation by IDs
 // @Description Get relation by course ID and teacher ID
 // @Tags Teacher Courses
@@ -90,7 +88,6 @@ func (h *TeachersCoursesHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all teacher-course relations
 // @Description Get all relations between teachers and courses
 // @Tags Teacher Courses
@@ -111,7 +108,6 @@ func (h *TeachersCoursesHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete teacher-course relation
 // @Description Delete relation by course ID and teacher ID
 // @Tags Teacher Courses

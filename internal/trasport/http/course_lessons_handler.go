@@ -21,7 +21,6 @@ func NewCourseLessonsHandler(courseLessonsService service.CourseLessonsServiceIn
 	}
 }
 
-// Create
 // @Summary Create course-lesson relation
 // @Description Create a new relation between course and lesson
 // @Tags Course Lessons
@@ -52,7 +51,6 @@ func (h *CourseLessonsHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get course-lesson relation by lesson ID
 // @Description Get relation by lesson ID
 // @Tags Course Lessons
@@ -82,7 +80,6 @@ func (h *CourseLessonsHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all course-lesson relations
 // @Description Get all relations between courses and lessons
 // @Tags Course Lessons
@@ -103,7 +100,6 @@ func (h *CourseLessonsHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete course-lesson relation
 // @Description Delete relation by lesson ID
 // @Tags Course Lessons

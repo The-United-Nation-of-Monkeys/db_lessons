@@ -7,7 +7,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// HomeworksTasksRepository
 type HomeworksTasksRepositoryInterface interface {
 	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateHomeworksTasksDTO) (*dto.HomeworksTasksDTO, error)
 	GetByID(ctx context.Context, conn *pgx.Conn, taskID, homeworkID int) (*dto.HomeworksTasksDTO, error)

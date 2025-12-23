@@ -7,7 +7,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// LessonsMaterialsRepository
 type LessonsMaterialsRepositoryInterface interface {
 	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateLessonsMaterialsDTO) (*dto.LessonsMaterialsDTO, error)
 	GetByID(ctx context.Context, conn *pgx.Conn, lessonID, materialID int) (*dto.LessonsMaterialsDTO, error)

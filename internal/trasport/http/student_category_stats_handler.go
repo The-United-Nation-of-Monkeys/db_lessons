@@ -3,7 +3,7 @@ package http
 import (
 	"strconv"
 
-	_ "github.com/The-United-Nation-of-Monkeys/db_lessons/internal/dto" // for swagger
+	_ "github.com/The-United-Nation-of-Monkeys/db_lessons/internal/dto"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/service"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
@@ -21,7 +21,6 @@ func NewStudentCategoryStatsHandler(studentCategoryStatsService service.StudentC
 	}
 }
 
-// GetAll
 // @Summary Get all student category statistics
 // @Description Get statistics for all students by categories
 // @Tags Reports
@@ -43,7 +42,6 @@ func (h *StudentCategoryStatsHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(stats)
 }
 
-// GetByStudentID
 // @Summary Get student category statistics by student ID
 // @Description Get statistics for a specific student by categories
 // @Tags Reports
@@ -74,7 +72,6 @@ func (h *StudentCategoryStatsHandler) GetByStudentID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(stats)
 }
 
-// GetByCategoryID
 // @Summary Get student category statistics by category ID
 // @Description Get statistics for all students in a specific category
 // @Tags Reports

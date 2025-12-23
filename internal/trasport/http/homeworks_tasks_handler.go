@@ -21,7 +21,6 @@ func NewHomeworksTasksHandler(homeworksTasksService service.HomeworksTasksServic
 	}
 }
 
-// Create
 // @Summary Create homework-task relation
 // @Description Create a new relation between homework and task
 // @Tags Homework Tasks
@@ -52,7 +51,6 @@ func (h *HomeworksTasksHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get homework-task relation by IDs
 // @Description Get relation by task ID and homework ID
 // @Tags Homework Tasks
@@ -90,7 +88,6 @@ func (h *HomeworksTasksHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all homework-task relations
 // @Description Get all relations between homeworks and tasks
 // @Tags Homework Tasks
@@ -111,7 +108,6 @@ func (h *HomeworksTasksHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete homework-task relation
 // @Description Delete relation by task ID and homework ID
 // @Tags Homework Tasks

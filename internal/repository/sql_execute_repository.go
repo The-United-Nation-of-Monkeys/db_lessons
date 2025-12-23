@@ -18,16 +18,13 @@ func NewSQLExecuteRepository() *SQLExecuteRepository {
 }
 
 func (r *SQLExecuteRepository) ExecuteSQL(ctx context.Context, conn *pgx.Conn, query string) (*dto.ExecuteSQLResponseDTO, error) {
-	// Определяем тип запроса по первому слову
 	queryUpper := query
 	if len(query) > 0 {
-		// Берем первые 10 символов для проверки
 		if len(query) > 10 {
 			queryUpper = query[:10]
 		}
 	}
 
-	// Проверяем, является ли это SELECT запросом
 	isSelect := false
 	if len(queryUpper) >= 6 {
 		firstWord := queryUpper[:6]
@@ -37,21 +34,18 @@ func (r *SQLExecuteRepository) ExecuteSQL(ctx context.Context, conn *pgx.Conn, q
 	}
 
 	if isSelect {
-		// Для SELECT используем Query
 		rows, err := conn.Query(ctx, query)
 		if err != nil {
 			return nil, err
 		}
 		defer rows.Close()
 
-		// Получаем имена колонок
 		fieldDescriptions := rows.FieldDescriptions()
 		columns := make([]string, len(fieldDescriptions))
 		for i, fd := range fieldDescriptions {
 			columns[i] = string(fd.Name)
 		}
 
-		// Читаем результаты
 		var resultRows []map[string]interface{}
 		rowsAffected := int64(0)
 
@@ -84,7 +78,6 @@ func (r *SQLExecuteRepository) ExecuteSQL(ctx context.Context, conn *pgx.Conn, q
 			Rows:         resultRows,
 		}, nil
 	} else {
-		// Для INSERT, UPDATE, DELETE, CREATE, DROP и т.д. используем Exec
 		commandTag, err := conn.Exec(ctx, query)
 		if err != nil {
 			return nil, err

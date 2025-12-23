@@ -21,7 +21,6 @@ func NewCurrencyHandler(currencyService service.CurrencyServiceInterface) *Curre
 	}
 }
 
-// Create
 // @Summary Create currency
 // @Description Create a new currency
 // @Tags Currencies
@@ -52,7 +51,6 @@ func (h *CurrencyHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get currency by ID
 // @Description Get currency by ID
 // @Tags Currencies
@@ -81,7 +79,6 @@ func (h *CurrencyHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(currency)
 }
 
-// GetAll
 // @Summary Get all currencys
 // @Description Get all currencys
 // @Tags Currencies
@@ -102,7 +99,6 @@ func (h *CurrencyHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(currencys)
 }
 
-// Update
 // @Summary Update currency
 // @Description Update currency by ID
 // @Tags Currencies
@@ -142,7 +138,6 @@ func (h *CurrencyHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete currency
 // @Description Delete currency by ID
 // @Tags Currencies

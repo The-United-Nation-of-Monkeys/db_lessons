@@ -21,7 +21,6 @@ func NewTaskHandler(taskService service.TaskServiceInterface) *TaskHandler {
 	}
 }
 
-// Create
 // @Summary Create task
 // @Description Create a new task
 // @Tags Tasks
@@ -52,7 +51,6 @@ func (h *TaskHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get task by ID
 // @Description Get task by ID
 // @Tags Tasks
@@ -81,7 +79,6 @@ func (h *TaskHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(task)
 }
 
-// GetAll
 // @Summary Get all tasks
 // @Description Get all tasks
 // @Tags Tasks
@@ -102,7 +99,6 @@ func (h *TaskHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(tasks)
 }
 
-// Update
 // @Summary Update task
 // @Description Update task by ID
 // @Tags Tasks
@@ -142,7 +138,6 @@ func (h *TaskHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete task
 // @Description Delete task by ID
 // @Tags Tasks

@@ -24,7 +24,6 @@ func NewApp() {
 		log.Fatalf("get config error: %v", err)
 	}
 
-	// Применяем миграции под пользователем из конфигурации
 	log.Printf("Applying database migrations as user: %s", cfg.DataBase.User)
 	if err := database.RunMigrations(ctx, cfg.DataBase); err != nil {
 		log.Fatalf("migration error: %v", err)

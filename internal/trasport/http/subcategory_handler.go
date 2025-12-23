@@ -21,7 +21,6 @@ func NewSubcategoryHandler(subcategoryService service.SubcategoryServiceInterfac
 	}
 }
 
-// Create
 // @Summary Create subcategory
 // @Description Create a new subcategory
 // @Tags Subcategories
@@ -52,7 +51,6 @@ func (h *SubcategoryHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get subcategory by ID
 // @Description Get subcategory by ID
 // @Tags Subcategories
@@ -81,7 +79,6 @@ func (h *SubcategoryHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(subcategory)
 }
 
-// GetAll
 // @Summary Get all subcategorys
 // @Description Get all subcategorys
 // @Tags Subcategories
@@ -102,7 +99,6 @@ func (h *SubcategoryHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(subcategorys)
 }
 
-// Update
 // @Summary Update subcategory
 // @Description Update subcategory by ID
 // @Tags Subcategories
@@ -142,7 +138,6 @@ func (h *SubcategoryHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete subcategory
 // @Description Delete subcategory by ID
 // @Tags Subcategories

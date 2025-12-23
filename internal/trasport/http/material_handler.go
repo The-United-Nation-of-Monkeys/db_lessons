@@ -21,7 +21,6 @@ func NewMaterialHandler(materialService service.MaterialServiceInterface) *Mater
 	}
 }
 
-// Create
 // @Summary Create material
 // @Description Create a new material
 // @Tags Materials
@@ -52,7 +51,6 @@ func (h *MaterialHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get material by ID
 // @Description Get material by ID
 // @Tags Materials
@@ -81,7 +79,6 @@ func (h *MaterialHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(material)
 }
 
-// GetAll
 // @Summary Get all materials
 // @Description Get all materials
 // @Tags Materials
@@ -102,7 +99,6 @@ func (h *MaterialHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(materials)
 }
 
-// Update
 // @Summary Update material
 // @Description Update material by ID
 // @Tags Materials
@@ -142,7 +138,6 @@ func (h *MaterialHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete material
 // @Description Delete material by ID
 // @Tags Materials

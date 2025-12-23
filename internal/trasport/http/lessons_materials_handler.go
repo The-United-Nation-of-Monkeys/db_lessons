@@ -21,7 +21,6 @@ func NewLessonsMaterialsHandler(lessonsMaterialsService service.LessonsMaterials
 	}
 }
 
-// Create
 // @Summary Create lesson-material relation
 // @Description Create a new relation between lesson and material
 // @Tags Lesson Materials
@@ -52,7 +51,6 @@ func (h *LessonsMaterialsHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get lesson-material relation by IDs
 // @Description Get relation by lesson ID and material ID
 // @Tags Lesson Materials
@@ -90,7 +88,6 @@ func (h *LessonsMaterialsHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all lesson-material relations
 // @Description Get all relations between lessons and materials
 // @Tags Lesson Materials
@@ -111,7 +108,6 @@ func (h *LessonsMaterialsHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete lesson-material relation
 // @Description Delete relation by lesson ID and material ID
 // @Tags Lesson Materials

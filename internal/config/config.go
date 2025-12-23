@@ -62,7 +62,6 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	// Ensure JWT paths have default values if empty
 	if cfg.JWT.PrivateKeyPath == "" {
 		cfg.JWT.PrivateKeyPath = "keys/private.pem"
 	}

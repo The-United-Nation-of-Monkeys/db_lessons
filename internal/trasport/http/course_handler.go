@@ -21,7 +21,6 @@ func NewCourseHandler(courseService service.CourseServiceInterface) *CourseHandl
 	}
 }
 
-// Create
 // @Summary Create course
 // @Description Create a new course
 // @Tags Courses
@@ -52,7 +51,6 @@ func (h *CourseHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get course by ID
 // @Description Get course by ID
 // @Tags Courses
@@ -81,7 +79,6 @@ func (h *CourseHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(course)
 }
 
-// GetAll
 // @Summary Get all courses
 // @Description Get all courses
 // @Tags Courses
@@ -102,7 +99,6 @@ func (h *CourseHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(courses)
 }
 
-// Update
 // @Summary Update course
 // @Description Update course by ID
 // @Tags Courses
@@ -142,7 +138,6 @@ func (h *CourseHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete course
 // @Description Delete course by ID
 // @Tags Courses

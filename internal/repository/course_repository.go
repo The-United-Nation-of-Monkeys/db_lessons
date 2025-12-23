@@ -21,7 +21,6 @@ func NewCourseRepository() *CourseRepository {
 }
 
 func (r *CourseRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCourseDTO) (*dto.CourseDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +74,6 @@ func (r *CourseRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.C
 }
 
 func (r *CourseRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCourseDTO) (*dto.CourseDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -107,7 +105,6 @@ func (r *CourseRepository) Update(ctx context.Context, conn *pgx.Conn, id int, d
 }
 
 func (r *CourseRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

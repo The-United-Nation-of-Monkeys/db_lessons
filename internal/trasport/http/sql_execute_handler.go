@@ -17,7 +17,6 @@ func NewSQLExecuteHandler(service service.SQLExecuteServiceInterface) *SQLExecut
 	return &SQLExecuteHandler{service: service}
 }
 
-// ExecuteSQL
 // @Summary Execute SQL query
 // @Description Execute arbitrary SQL query in the database. This endpoint allows administrators to execute any SQL query (SELECT, INSERT, UPDATE, DELETE, etc.). For SELECT queries, it returns the results with columns and rows. For modification queries (INSERT, UPDATE, DELETE), it returns the number of affected rows. **WARNING: This endpoint has full database access and should only be used by trusted administrators.**
 // @Tags SQL Execute

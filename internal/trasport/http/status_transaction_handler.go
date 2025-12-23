@@ -21,7 +21,6 @@ func NewStatusTransactionHandler(statusTransactionService service.StatusTransact
 	}
 }
 
-// Create
 // @Summary Create statustransaction
 // @Description Create a new statustransaction
 // @Tags StatusTransactions
@@ -52,7 +51,6 @@ func (h *StatusTransactionHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get statustransaction by ID
 // @Description Get statustransaction by ID
 // @Tags StatusTransactions
@@ -81,7 +79,6 @@ func (h *StatusTransactionHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(statustransaction)
 }
 
-// GetAll
 // @Summary Get all statustransactions
 // @Description Get all statustransactions
 // @Tags StatusTransactions
@@ -102,7 +99,6 @@ func (h *StatusTransactionHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(statustransactions)
 }
 
-// Update
 // @Summary Update statustransaction
 // @Description Update statustransaction by ID
 // @Tags StatusTransactions
@@ -142,7 +138,6 @@ func (h *StatusTransactionHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete statustransaction
 // @Description Delete statustransaction by ID
 // @Tags StatusTransactions

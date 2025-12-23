@@ -21,7 +21,6 @@ func NewStudentHandler(studentService service.StudentServiceInterface) *StudentH
 	}
 }
 
-// Create
 // @Summary Create student
 // @Description Create a new student
 // @Tags Students
@@ -51,7 +50,6 @@ func (h *StudentHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get student by ID
 // @Description Get student by ID
 // @Tags Students
@@ -81,7 +79,6 @@ func (h *StudentHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(student)
 }
 
-// GetAll
 // @Summary Get all students
 // @Description Get all students
 // @Tags Students
@@ -103,7 +100,6 @@ func (h *StudentHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(students)
 }
 
-// Update
 // @Summary Update student
 // @Description Update student by ID
 // @Tags Students
@@ -144,7 +140,6 @@ func (h *StudentHandler) Update(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
-// Delete
 // @Summary Delete student
 // @Description Delete student by ID
 // @Tags Students
@@ -175,7 +170,3 @@ func (h *StudentHandler) Delete(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusNoContent).Send(nil)
 }
 
-//func (h *StudentHandler) GetStudentInfo(ctx fiber.Ctx) error {
-//	localLogger := logger.GetLoggerFromCtx(ctx.Context())
-//
-//}

@@ -21,7 +21,6 @@ func NewLessonHomeworksHandler(lessonHomeworksService service.LessonHomeworksSer
 	}
 }
 
-// Create
 // @Summary Create lesson-homework relation
 // @Description Create a new relation between lesson and homework
 // @Tags Lesson Homeworks
@@ -52,7 +51,6 @@ func (h *LessonHomeworksHandler) Create(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetByID
 // @Summary Get lesson-homework relation by IDs
 // @Description Get relation by lesson ID and homework ID
 // @Tags Lesson Homeworks
@@ -90,7 +88,6 @@ func (h *LessonHomeworksHandler) GetByID(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relation)
 }
 
-// GetAll
 // @Summary Get all lesson-homework relations
 // @Description Get all relations between lessons and homeworks
 // @Tags Lesson Homeworks
@@ -111,7 +108,6 @@ func (h *LessonHomeworksHandler) GetAll(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(relations)
 }
 
-// Delete
 // @Summary Delete lesson-homework relation
 // @Description Delete relation by lesson ID and homework ID
 // @Tags Lesson Homeworks

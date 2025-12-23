@@ -21,7 +21,6 @@ func NewHomeworkRepository() *HomeworkRepository {
 }
 
 func (r *HomeworkRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateHomeworkDTO) (*dto.HomeworkDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +74,6 @@ func (r *HomeworkRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto
 }
 
 func (r *HomeworkRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateHomeworkDTO) (*dto.HomeworkDTO, error) {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -103,7 +101,6 @@ func (r *HomeworkRepository) Update(ctx context.Context, conn *pgx.Conn, id int,
 }
 
 func (r *HomeworkRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
-	// Begin transaction for write operation
 	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err

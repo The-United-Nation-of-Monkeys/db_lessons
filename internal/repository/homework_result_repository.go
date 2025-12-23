@@ -7,11 +7,11 @@ import (
 )
 
 type HomeworkResultRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateHomeworkResultDTO) (*dto.HomeworkResultDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.HomeworkResultDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.HomeworkResultDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateHomeworkResultDTO) (*dto.HomeworkResultDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateHomeworkResultDTO) (*dto.HomeworkResultDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.HomeworkResultDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.HomeworkResultDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateHomeworkResultDTO) (*dto.HomeworkResultDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
 }
 
 type HomeworkResultRepository struct{}
@@ -20,12 +20,12 @@ func NewHomeworkResultRepository() *HomeworkResultRepository {
 	return &HomeworkResultRepository{}
 }
 
-func (r *HomeworkResultRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateHomeworkResultDTO) (*dto.HomeworkResultDTO, error) {
+func (r *HomeworkResultRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateHomeworkResultDTO) (*dto.HomeworkResultDTO, error) {
 	query := `INSERT INTO homework_result (student_answer_id, student_id, task_id, status_homework_id, points) 
 			  VALUES ($1, $2, $3, $4, $5) 
 			  RETURNING homework_result_id, student_answer_id, student_id, task_id, status_homework_id, points`
 	var result dto.HomeworkResultDTO
-	err := tx.QueryRow(ctx, query, data.StudentAnswerID, data.StudentID, data.TaskID, data.StatusHomeworkID, data.Points).
+	err := conn.QueryRow(ctx, query, data.StudentAnswerID, data.StudentID, data.TaskID, data.StatusHomeworkID, data.Points).
 		Scan(&result.HomeworkResultID, &result.StudentAnswerID, &result.StudentID, &result.TaskID, &result.StatusHomeworkID, &result.Points)
 	if err != nil {
 		return nil, err
@@ -33,19 +33,19 @@ func (r *HomeworkResultRepository) Create(ctx context.Context, tx pgx.Tx, data *
 	return &result, nil
 }
 
-func (r *HomeworkResultRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.HomeworkResultDTO, error) {
+func (r *HomeworkResultRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.HomeworkResultDTO, error) {
 	query := `SELECT homework_result_id, student_answer_id, student_id, task_id, status_homework_id, points FROM homework_result WHERE homework_result_id = $1`
 	var result dto.HomeworkResultDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&result.HomeworkResultID, &result.StudentAnswerID, &result.StudentID, &result.TaskID, &result.StatusHomeworkID, &result.Points)
+	err := conn.QueryRow(ctx, query, id).Scan(&result.HomeworkResultID, &result.StudentAnswerID, &result.StudentID, &result.TaskID, &result.StatusHomeworkID, &result.Points)
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (r *HomeworkResultRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.HomeworkResultDTO, error) {
+func (r *HomeworkResultRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.HomeworkResultDTO, error) {
 	query := `SELECT homework_result_id, student_answer_id, student_id, task_id, status_homework_id, points FROM homework_result`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (r *HomeworkResultRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dt
 	return results, nil
 }
 
-func (r *HomeworkResultRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateHomeworkResultDTO) (*dto.HomeworkResultDTO, error) {
+func (r *HomeworkResultRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateHomeworkResultDTO) (*dto.HomeworkResultDTO, error) {
 	query := `UPDATE homework_result SET 
 			  student_answer_id = COALESCE($1, student_answer_id),
 			  student_id = COALESCE($2, student_id),
@@ -72,7 +72,7 @@ func (r *HomeworkResultRepository) Update(ctx context.Context, tx pgx.Tx, id int
 			  WHERE homework_result_id = $6
 			  RETURNING homework_result_id, student_answer_id, student_id, task_id, status_homework_id, points`
 	var result dto.HomeworkResultDTO
-	err := tx.QueryRow(ctx, query, data.StudentAnswerID, data.StudentID, data.TaskID, data.StatusHomeworkID, data.Points, id).
+	err := conn.QueryRow(ctx, query, data.StudentAnswerID, data.StudentID, data.TaskID, data.StatusHomeworkID, data.Points, id).
 		Scan(&result.HomeworkResultID, &result.StudentAnswerID, &result.StudentID, &result.TaskID, &result.StatusHomeworkID, &result.Points)
 	if err != nil {
 		return nil, err
@@ -80,8 +80,8 @@ func (r *HomeworkResultRepository) Update(ctx context.Context, tx pgx.Tx, id int
 	return &result, nil
 }
 
-func (r *HomeworkResultRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *HomeworkResultRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
 	query := `DELETE FROM homework_result WHERE homework_result_id = $1`
-	_, err := tx.Exec(ctx, query, id)
+	_, err := conn.Exec(ctx, query, id)
 	return err
 }

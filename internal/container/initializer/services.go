@@ -6,43 +6,42 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/config"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/service"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/jwt"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ServiceList struct {
-	JWTService               *jwt.ServiceJWT
-	AuthService              service.AuthServiceInterface
-	StudentService           service.StudentServiceInterface
-	TeacherService           service.TeacherServiceInterface
-	CategoryService          service.CategoryServiceInterface
-	CurrencyService          service.CurrencyServiceInterface
-	LevelService             service.LevelServiceInterface
-	SubcategoryService       service.SubcategoryServiceInterface
-	MaterialService          service.MaterialServiceInterface
-	HomeworkService          service.HomeworkServiceInterface
-	LessonService            service.LessonServiceInterface
-	CourseService            service.CourseServiceInterface
-	TaskService              service.TaskServiceInterface
-	StatusHomeworkService    service.StatusHomeworkServiceInterface
-	StatusAnswerService      service.StatusAnswerServiceInterface
-	StatusTransactionService service.StatusTransactionServiceInterface
-	StudentAnswerService           service.StudentAnswerServiceInterface
-	HomeworkResultService          service.HomeworkResultServiceInterface
-	TransactionService             service.TransactionServiceInterface
-	StudentCategoryStatsService    service.StudentCategoryStatsServiceInterface
-	TeachersCoursesService         service.TeachersCoursesServiceInterface
-	CourseLessonsService           service.CourseLessonsServiceInterface
-	LessonsMaterialsService        service.LessonsMaterialsServiceInterface
-	LessonHomeworksService         service.LessonHomeworksServiceInterface
-	HomeworksTasksService          service.HomeworksTasksServiceInterface
-	TransactionsCoursesService     service.TransactionsCoursesServiceInterface
+	JWTService                  *jwt.ServiceJWT
+	AuthService                 service.AuthServiceInterface
+	StudentService              service.StudentServiceInterface
+	TeacherService              service.TeacherServiceInterface
+	CategoryService             service.CategoryServiceInterface
+	CurrencyService             service.CurrencyServiceInterface
+	LevelService                service.LevelServiceInterface
+	SubcategoryService          service.SubcategoryServiceInterface
+	MaterialService             service.MaterialServiceInterface
+	HomeworkService             service.HomeworkServiceInterface
+	LessonService               service.LessonServiceInterface
+	CourseService               service.CourseServiceInterface
+	TaskService                 service.TaskServiceInterface
+	StatusHomeworkService       service.StatusHomeworkServiceInterface
+	StatusAnswerService         service.StatusAnswerServiceInterface
+	StatusTransactionService    service.StatusTransactionServiceInterface
+	StudentAnswerService        service.StudentAnswerServiceInterface
+	HomeworkResultService       service.HomeworkResultServiceInterface
+	TransactionService          service.TransactionServiceInterface
+	StudentCategoryStatsService service.StudentCategoryStatsServiceInterface
+	TeachersCoursesService      service.TeachersCoursesServiceInterface
+	CourseLessonsService        service.CourseLessonsServiceInterface
+	LessonsMaterialsService     service.LessonsMaterialsServiceInterface
+	LessonHomeworksService      service.LessonHomeworksServiceInterface
+	HomeworksTasksService       service.HomeworksTasksServiceInterface
+	TransactionsCoursesService  service.TransactionsCoursesServiceInterface
 }
 
-func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool, cfg *config.Config) *ServiceList {
+func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceList {
 	// Load JWT keys
 	privateKeyPath := cfg.JWT.GetPrivateKeyPath()
 	publicKeyPath := cfg.JWT.GetPublicKeyPath()
-	
+
 	privateKey, err := jwt.LoadPrivateKey(privateKeyPath)
 	if err != nil {
 		panic("failed to load private key: " + err.Error())
@@ -67,35 +66,43 @@ func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool, cfg *con
 	// Create JWT service
 	jwtService := jwt.NewServiceJWT(privateKey, publicKey, refreshTimeExp, accessTimeExp)
 
-	// Create auth service
-	authService := service.NewAuthService(repositories.AuthRepository, jwtService, cfg.DataBase)
+	// Create BaseService with role mappings
+	roleMap := map[string]service.RoleConfig{
+		"admin":   {User: "app_admin_user"},
+		"teacher": {User: "app_teacher_user"},
+		"student": {User: "app_student_user"},
+	}
+	baseService := service.NewBaseService(roleMap, cfg.DataBase, "app_base_user")
+
+	// Create auth service - использует базового пользователя через BaseService
+	authService := service.NewAuthService(repositories.AuthRepository, jwtService, baseService)
 
 	return &ServiceList{
-		JWTService:               jwtService,
-		AuthService:              authService,
-		StudentService:           service.NewStudentService(dbPool, repositories.StudentRepository),
-		TeacherService:           service.NewTeacherService(dbPool, repositories.TeacherRepository),
-		CategoryService:          service.NewCategoryService(dbPool, repositories.CategoryRepository),
-		CurrencyService:          service.NewCurrencyService(dbPool, repositories.CurrencyRepository),
-		LevelService:             service.NewLevelService(dbPool, repositories.LevelRepository),
-		SubcategoryService:       service.NewSubcategoryService(dbPool, repositories.SubcategoryRepository),
-		MaterialService:          service.NewMaterialService(dbPool, repositories.MaterialRepository),
-		HomeworkService:          service.NewHomeworkService(dbPool, repositories.HomeworkRepository),
-		LessonService:            service.NewLessonService(dbPool, repositories.LessonRepository),
-		CourseService:            service.NewCourseService(dbPool, repositories.CourseRepository),
-		TaskService:              service.NewTaskService(dbPool, repositories.TaskRepository),
-		StatusHomeworkService:    service.NewStatusHomeworkService(dbPool, repositories.StatusHomeworkRepository),
-		StatusAnswerService:      service.NewStatusAnswerService(dbPool, repositories.StatusAnswerRepository),
-		StatusTransactionService: service.NewStatusTransactionService(dbPool, repositories.StatusTransactionRepository),
-		StudentAnswerService:           service.NewStudentAnswerService(dbPool, repositories.StudentAnswerRepository),
-		HomeworkResultService:          service.NewHomeworkResultService(dbPool, repositories.HomeworkResultRepository),
-		TransactionService:             service.NewTransactionService(dbPool, repositories.TransactionRepository),
-		StudentCategoryStatsService:    service.NewStudentCategoryStatsService(dbPool, repositories.StudentCategoryStatsRepository),
-		TeachersCoursesService:         service.NewTeachersCoursesService(dbPool, repositories.TeachersCoursesRepository),
-		CourseLessonsService:           service.NewCourseLessonsService(dbPool, repositories.CourseLessonsRepository),
-		LessonsMaterialsService:        service.NewLessonsMaterialsService(dbPool, repositories.LessonsMaterialsRepository),
-		LessonHomeworksService:         service.NewLessonHomeworksService(dbPool, repositories.LessonHomeworksRepository),
-		HomeworksTasksService:          service.NewHomeworksTasksService(dbPool, repositories.HomeworksTasksRepository),
-		TransactionsCoursesService:     service.NewTransactionsCoursesService(dbPool, repositories.TransactionsCoursesRepository),
+		JWTService:                  jwtService,
+		AuthService:                 authService,
+		StudentService:              service.NewStudentService(baseService, repositories.StudentRepository),
+		TeacherService:              service.NewTeacherService(baseService, repositories.TeacherRepository),
+		CategoryService:             service.NewCategoryService(baseService, repositories.CategoryRepository),
+		CurrencyService:             service.NewCurrencyService(baseService, repositories.CurrencyRepository),
+		LevelService:                service.NewLevelService(baseService, repositories.LevelRepository),
+		SubcategoryService:          service.NewSubcategoryService(baseService, repositories.SubcategoryRepository),
+		MaterialService:             service.NewMaterialService(baseService, repositories.MaterialRepository),
+		HomeworkService:             service.NewHomeworkService(baseService, repositories.HomeworkRepository),
+		LessonService:               service.NewLessonService(baseService, repositories.LessonRepository),
+		CourseService:               service.NewCourseService(baseService, repositories.CourseRepository),
+		TaskService:                 service.NewTaskService(baseService, repositories.TaskRepository),
+		StatusHomeworkService:       service.NewStatusHomeworkService(baseService, repositories.StatusHomeworkRepository),
+		StatusAnswerService:         service.NewStatusAnswerService(baseService, repositories.StatusAnswerRepository),
+		StatusTransactionService:    service.NewStatusTransactionService(baseService, repositories.StatusTransactionRepository),
+		StudentAnswerService:        service.NewStudentAnswerService(baseService, repositories.StudentAnswerRepository),
+		HomeworkResultService:       service.NewHomeworkResultService(baseService, repositories.HomeworkResultRepository),
+		TransactionService:          service.NewTransactionService(baseService, repositories.TransactionRepository),
+		StudentCategoryStatsService: service.NewStudentCategoryStatsService(baseService, repositories.StudentCategoryStatsRepository),
+		TeachersCoursesService:      service.NewTeachersCoursesService(baseService, repositories.TeachersCoursesRepository),
+		CourseLessonsService:        service.NewCourseLessonsService(baseService, repositories.CourseLessonsRepository),
+		LessonsMaterialsService:     service.NewLessonsMaterialsService(baseService, repositories.LessonsMaterialsRepository),
+		LessonHomeworksService:      service.NewLessonHomeworksService(baseService, repositories.LessonHomeworksRepository),
+		HomeworksTasksService:       service.NewHomeworksTasksService(baseService, repositories.HomeworksTasksRepository),
+		TransactionsCoursesService:  service.NewTransactionsCoursesService(baseService, repositories.TransactionsCoursesRepository),
 	}
 }

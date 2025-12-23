@@ -7,11 +7,11 @@ import (
 )
 
 type CourseRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCourseDTO) (*dto.CourseDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.CourseDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CourseDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateCourseDTO) (*dto.CourseDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCourseDTO) (*dto.CourseDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.CourseDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CourseDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCourseDTO) (*dto.CourseDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
 }
 
 type CourseRepository struct{}
@@ -20,32 +20,44 @@ func NewCourseRepository() *CourseRepository {
 	return &CourseRepository{}
 }
 
-func (r *CourseRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCourseDTO) (*dto.CourseDTO, error) {
+func (r *CourseRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCourseDTO) (*dto.CourseDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `INSERT INTO course (name, description, category_id, start_date, end_date, price, currency_id) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7) 
 			  RETURNING course_id, name, description, category_id, start_date, end_date, price, currency_id`
 	var course dto.CourseDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Description, data.CategoryID, data.StartDate, data.EndDate, data.Price, data.CurrencyID).
+	err = tx.QueryRow(ctx, query, data.Name, data.Description, data.CategoryID, data.StartDate, data.EndDate, data.Price, data.CurrencyID).
 		Scan(&course.CourseID, &course.Name, &course.Description, &course.CategoryID, &course.StartDate, &course.EndDate, &course.Price, &course.CurrencyID)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &course, nil
 }
 
-func (r *CourseRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.CourseDTO, error) {
+func (r *CourseRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.CourseDTO, error) {
 	query := `SELECT course_id, name, description, category_id, start_date, end_date, price, currency_id FROM course WHERE course_id = $1`
 	var course dto.CourseDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&course.CourseID, &course.Name, &course.Description, &course.CategoryID, &course.StartDate, &course.EndDate, &course.Price, &course.CurrencyID)
+	err := conn.QueryRow(ctx, query, id).Scan(&course.CourseID, &course.Name, &course.Description, &course.CategoryID, &course.StartDate, &course.EndDate, &course.Price, &course.CurrencyID)
 	if err != nil {
 		return nil, err
 	}
 	return &course, nil
 }
 
-func (r *CourseRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CourseDTO, error) {
+func (r *CourseRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CourseDTO, error) {
 	query := `SELECT course_id, name, description, category_id, start_date, end_date, price, currency_id FROM course`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +74,14 @@ func (r *CourseRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Course
 	return courses, nil
 }
 
-func (r *CourseRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateCourseDTO) (*dto.CourseDTO, error) {
+func (r *CourseRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCourseDTO) (*dto.CourseDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `UPDATE course SET 
 			  name = COALESCE($1, name),
 			  description = COALESCE($2, description),
@@ -74,16 +93,32 @@ func (r *CourseRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *
 			  WHERE course_id = $8
 			  RETURNING course_id, name, description, category_id, start_date, end_date, price, currency_id`
 	var course dto.CourseDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Description, data.CategoryID, data.StartDate, data.EndDate, data.Price, data.CurrencyID, id).
+	err = tx.QueryRow(ctx, query, data.Name, data.Description, data.CategoryID, data.StartDate, data.EndDate, data.Price, data.CurrencyID, id).
 		Scan(&course.CourseID, &course.Name, &course.Description, &course.CategoryID, &course.StartDate, &course.EndDate, &course.Price, &course.CurrencyID)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &course, nil
 }
 
-func (r *CourseRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *CourseRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `DELETE FROM course WHERE course_id = $1`
-	_, err := tx.Exec(ctx, query, id)
-	return err
+	_, err = tx.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

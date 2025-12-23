@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
@@ -132,9 +133,14 @@ func AuthMiddleware(jwtService *jwt.ServiceJWT, routeConfigs map[string][]string
 			return exception.BadRequest("insufficient permissions")
 		}
 
-		// Store user info in context
+		// Store user info in context (both Fiber locals and Go context)
 		ctx.Locals("user_id", claims.UserID)
 		ctx.Locals("user_role", claims.Role)
+
+		// Also store in Go context for BaseService
+		userCtx := context.WithValue(ctx.Context(), "user_id", claims.UserID)
+		userCtx = context.WithValue(userCtx, "user_role", claims.Role)
+		ctx.SetContext(userCtx)
 
 		return ctx.Next()
 	}

@@ -557,6 +557,9 @@ GRANT SELECT, INSERT
     ON TABLE student, teacher
     TO app_base;
 
+GRANT SELECT
+    ON TABLE admin
+    TO app_base;
 -- ============================================
 -- ADMIN ROLE (full access to all tables)
 -- ============================================

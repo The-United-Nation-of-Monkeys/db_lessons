@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type MaterialServiceInterface interface {
 }
 
 type MaterialService struct {
-	dbPool             *pgxpool.Pool
+	baseService *BaseService
 	materialRepository repository.MaterialRepositoryInterface
 }
 
-func NewMaterialService(dbPool *pgxpool.Pool, materialRepository repository.MaterialRepositoryInterface) *MaterialService {
+func NewMaterialService(baseService *BaseService, materialRepository repository.MaterialRepositoryInterface) *MaterialService {
 	return &MaterialService{
-		dbPool:             dbPool,
+		baseService: baseService,
 		materialRepository: materialRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *MaterialService) Create(ctx context.Context, data *dto.CreateMaterialDT
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	material, err := s.materialRepository.Create(ctx, tx, data)
+	material, err := s.materialRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create material error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *MaterialService) GetByID(ctx context.Context, id int) (*dto.MaterialDTO
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	material, err := s.materialRepository.GetByID(ctx, tx, id)
+	material, err := s.materialRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *MaterialService) GetAll(ctx context.Context) ([]*dto.MaterialDTO, error
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	materials, err := s.materialRepository.GetAll(ctx, tx)
+	materials, err := s.materialRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all materials error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *MaterialService) Update(ctx context.Context, id int, data *dto.UpdateMa
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.materialRepository.GetByID(ctx, tx, id)
+	_, err = s.materialRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *MaterialService) Update(ctx context.Context, id int, data *dto.UpdateMa
 		return nil, exception.InternalServerError()
 	}
 
-	material, err := s.materialRepository.Update(ctx, tx, id, data)
+	material, err := s.materialRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update material error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -145,14 +134,14 @@ func (s *MaterialService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.materialRepository.GetByID(ctx, tx, id)
+	_, err = s.materialRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -163,14 +152,9 @@ func (s *MaterialService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.materialRepository.Delete(ctx, tx, id)
+	err = s.materialRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete material error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

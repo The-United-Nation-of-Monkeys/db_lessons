@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type TeacherServiceInterface interface {
 }
 
 type TeacherService struct {
-	dbPool            *pgxpool.Pool
+	baseService       *BaseService
 	teacherRepository repository.TeacherRepositoryInterface
 }
 
-func NewTeacherService(dbPool *pgxpool.Pool, teacherRepository repository.TeacherRepositoryInterface) *TeacherService {
+func NewTeacherService(baseService *BaseService, teacherRepository repository.TeacherRepositoryInterface) *TeacherService {
 	return &TeacherService{
-		dbPool:            dbPool,
+		baseService:       baseService,
 		teacherRepository: teacherRepository,
 	}
 }
@@ -35,14 +34,15 @@ func (s *TeacherService) Create(ctx context.Context, data *dto.CreateTeacherDTO)
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (для регистрации используем базового пользователя)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	teacher, err := s.teacherRepository.Create(ctx, tx, data)
+	teacher, err := s.teacherRepository.Create(ctx, conn, data)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeDuplicate {
@@ -50,11 +50,6 @@ func (s *TeacherService) Create(ctx context.Context, data *dto.CreateTeacherDTO)
 			return nil, exception.BadRequest("email already exists")
 		}
 		localLogger.Error(ctx, "create teacher error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -66,14 +61,15 @@ func (s *TeacherService) GetByID(ctx context.Context, id int) (*dto.TeacherDTO, 
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	teacher, err := s.teacherRepository.GetByID(ctx, tx, id)
+	teacher, err := s.teacherRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -92,14 +88,15 @@ func (s *TeacherService) GetAll(ctx context.Context) ([]*dto.TeacherDTO, error) 
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	teachers, err := s.teacherRepository.GetAll(ctx, tx)
+	teachers, err := s.teacherRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all teachers error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -113,14 +110,15 @@ func (s *TeacherService) Update(ctx context.Context, id int, data *dto.UpdateTea
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.teacherRepository.GetByID(ctx, tx, id)
+	_, err = s.teacherRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -131,7 +129,7 @@ func (s *TeacherService) Update(ctx context.Context, id int, data *dto.UpdateTea
 		return nil, exception.InternalServerError()
 	}
 
-	teacher, err := s.teacherRepository.Update(ctx, tx, id, data)
+	teacher, err := s.teacherRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeDuplicate {
@@ -139,11 +137,6 @@ func (s *TeacherService) Update(ctx context.Context, id int, data *dto.UpdateTea
 			return nil, exception.BadRequest("email already exists")
 		}
 		localLogger.Error(ctx, "update teacher error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -155,14 +148,15 @@ func (s *TeacherService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.teacherRepository.GetByID(ctx, tx, id)
+	_, err = s.teacherRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -173,14 +167,9 @@ func (s *TeacherService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.teacherRepository.Delete(ctx, tx, id)
+	err = s.teacherRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete teacher error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type CurrencyServiceInterface interface {
 }
 
 type CurrencyService struct {
-	dbPool             *pgxpool.Pool
+	baseService *BaseService
 	currencyRepository repository.CurrencyRepositoryInterface
 }
 
-func NewCurrencyService(dbPool *pgxpool.Pool, currencyRepository repository.CurrencyRepositoryInterface) *CurrencyService {
+func NewCurrencyService(baseService *BaseService, currencyRepository repository.CurrencyRepositoryInterface) *CurrencyService {
 	return &CurrencyService{
-		dbPool:             dbPool,
+		baseService: baseService,
 		currencyRepository: currencyRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *CurrencyService) Create(ctx context.Context, data *dto.CreateCurrencyDT
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	currency, err := s.currencyRepository.Create(ctx, tx, data)
+	currency, err := s.currencyRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create currency error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *CurrencyService) GetByID(ctx context.Context, id int) (*dto.CurrencyDTO
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	currency, err := s.currencyRepository.GetByID(ctx, tx, id)
+	currency, err := s.currencyRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *CurrencyService) GetAll(ctx context.Context) ([]*dto.CurrencyDTO, error
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	currencys, err := s.currencyRepository.GetAll(ctx, tx)
+	currencys, err := s.currencyRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all currencys error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *CurrencyService) Update(ctx context.Context, id int, data *dto.UpdateCu
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.currencyRepository.GetByID(ctx, tx, id)
+	_, err = s.currencyRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *CurrencyService) Update(ctx context.Context, id int, data *dto.UpdateCu
 		return nil, exception.InternalServerError()
 	}
 
-	currency, err := s.currencyRepository.Update(ctx, tx, id, data)
+	currency, err := s.currencyRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update currency error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -145,14 +134,14 @@ func (s *CurrencyService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.currencyRepository.GetByID(ctx, tx, id)
+	_, err = s.currencyRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -163,14 +152,9 @@ func (s *CurrencyService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.currencyRepository.Delete(ctx, tx, id)
+	err = s.currencyRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete currency error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

@@ -8,11 +8,11 @@ import (
 )
 
 type TeacherRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateTeacherDTO) (*dto.TeacherDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.TeacherDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.TeacherDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateTeacherDTO) (*dto.TeacherDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTeacherDTO) (*dto.TeacherDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.TeacherDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.TeacherDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTeacherDTO) (*dto.TeacherDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
 }
 
 type TeacherRepository struct{}
@@ -21,12 +21,19 @@ func NewTeacherRepository() *TeacherRepository {
 	return &TeacherRepository{}
 }
 
-func (r *TeacherRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateTeacherDTO) (*dto.TeacherDTO, error) {
+func (r *TeacherRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTeacherDTO) (*dto.TeacherDTO, error) {
 	// Hash password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
+
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
 
 	query := `INSERT INTO teacher (name, surname, email, password) 
 			  VALUES ($1, $2, $3, $4) 
@@ -37,22 +44,27 @@ func (r *TeacherRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.Cre
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &teacher, nil
 }
 
-func (r *TeacherRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.TeacherDTO, error) {
+func (r *TeacherRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.TeacherDTO, error) {
 	query := `SELECT teacher_id, name, surname, email, password FROM teacher WHERE teacher_id = $1`
 	var teacher dto.TeacherDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&teacher.TeacherID, &teacher.Name, &teacher.Surname, &teacher.Email, &teacher.Password)
+	err := conn.QueryRow(ctx, query, id).Scan(&teacher.TeacherID, &teacher.Name, &teacher.Surname, &teacher.Email, &teacher.Password)
 	if err != nil {
 		return nil, err
 	}
 	return &teacher, nil
 }
 
-func (r *TeacherRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.TeacherDTO, error) {
+func (r *TeacherRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.TeacherDTO, error) {
 	query := `SELECT teacher_id, name, surname, email, password FROM teacher`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +81,7 @@ func (r *TeacherRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Teach
 	return teachers, nil
 }
 
-func (r *TeacherRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateTeacherDTO) (*dto.TeacherDTO, error) {
+func (r *TeacherRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTeacherDTO) (*dto.TeacherDTO, error) {
 	var hashedPassword *string
 	if data.Password != nil {
 		hashed, err := bcrypt.GenerateFromPassword([]byte(*data.Password), bcrypt.DefaultCost)
@@ -80,6 +92,13 @@ func (r *TeacherRepository) Update(ctx context.Context, tx pgx.Tx, id int, data 
 		hashedPassword = &hashedStr
 	}
 
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `UPDATE teacher SET 
 			  name = COALESCE($1, name),
 			  surname = COALESCE($2, surname),
@@ -88,16 +107,32 @@ func (r *TeacherRepository) Update(ctx context.Context, tx pgx.Tx, id int, data 
 			  WHERE teacher_id = $5
 			  RETURNING teacher_id, name, surname, email, password`
 	var teacher dto.TeacherDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, hashedPassword, id).
+	err = tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, hashedPassword, id).
 		Scan(&teacher.TeacherID, &teacher.Name, &teacher.Surname, &teacher.Email, &teacher.Password)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &teacher, nil
 }
 
-func (r *TeacherRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *TeacherRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `DELETE FROM teacher WHERE teacher_id = $1`
-	_, err := tx.Exec(ctx, query, id)
-	return err
+	_, err = tx.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

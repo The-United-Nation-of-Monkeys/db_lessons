@@ -8,13 +8,13 @@ import (
 )
 
 type TransactionRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateTransactionDTO) (*dto.TransactionDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.TransactionDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.TransactionDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
-	GetReportByParams(ctx context.Context, tx pgx.Tx, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error)
-	BulkUpdateTransactionStatus(ctx context.Context, tx pgx.Tx, params *dto.BulkUpdateTransactionStatusDTO) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTransactionDTO) (*dto.TransactionDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.TransactionDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.TransactionDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
+	GetReportByParams(ctx context.Context, conn *pgx.Conn, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error)
+	BulkUpdateTransactionStatus(ctx context.Context, conn *pgx.Conn, params *dto.BulkUpdateTransactionStatusDTO) error
 }
 
 type TransactionRepository struct{}
@@ -23,32 +23,44 @@ func NewTransactionRepository() *TransactionRepository {
 	return &TransactionRepository{}
 }
 
-func (r *TransactionRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateTransactionDTO) (*dto.TransactionDTO, error) {
+func (r *TransactionRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateTransactionDTO) (*dto.TransactionDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `INSERT INTO transaction (student_id, status_id, total_price) 
 			  VALUES ($1, $2, $3) 
 			  RETURNING transaction_id, student_id, status_id, total_price`
 	var transaction dto.TransactionDTO
-	err := tx.QueryRow(ctx, query, data.StudentID, data.StatusID, data.TotalPrice).
+	err = tx.QueryRow(ctx, query, data.StudentID, data.StatusID, data.TotalPrice).
 		Scan(&transaction.TransactionID, &transaction.StudentID, &transaction.StatusID, &transaction.TotalPrice)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &transaction, nil
 }
 
-func (r *TransactionRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.TransactionDTO, error) {
+func (r *TransactionRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.TransactionDTO, error) {
 	query := `SELECT transaction_id, student_id, status_id, total_price FROM transaction WHERE transaction_id = $1`
 	var transaction dto.TransactionDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&transaction.TransactionID, &transaction.StudentID, &transaction.StatusID, &transaction.TotalPrice)
+	err := conn.QueryRow(ctx, query, id).Scan(&transaction.TransactionID, &transaction.StudentID, &transaction.StatusID, &transaction.TotalPrice)
 	if err != nil {
 		return nil, err
 	}
 	return &transaction, nil
 }
 
-func (r *TransactionRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.TransactionDTO, error) {
+func (r *TransactionRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.TransactionDTO, error) {
 	query := `SELECT transaction_id, student_id, status_id, total_price FROM transaction`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +77,14 @@ func (r *TransactionRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.T
 	return transactions, nil
 }
 
-func (r *TransactionRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error) {
+func (r *TransactionRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateTransactionDTO) (*dto.TransactionDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `UPDATE transaction SET 
 			  student_id = COALESCE($1, student_id),
 			  status_id = COALESCE($2, status_id),
@@ -73,21 +92,37 @@ func (r *TransactionRepository) Update(ctx context.Context, tx pgx.Tx, id int, d
 			  WHERE transaction_id = $4
 			  RETURNING transaction_id, student_id, status_id, total_price`
 	var transaction dto.TransactionDTO
-	err := tx.QueryRow(ctx, query, data.StudentID, data.StatusID, data.TotalPrice, id).
+	err = tx.QueryRow(ctx, query, data.StudentID, data.StatusID, data.TotalPrice, id).
 		Scan(&transaction.TransactionID, &transaction.StudentID, &transaction.StatusID, &transaction.TotalPrice)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &transaction, nil
 }
 
-func (r *TransactionRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *TransactionRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `DELETE FROM transaction WHERE transaction_id = $1`
-	_, err := tx.Exec(ctx, query, id)
-	return err
+	_, err = tx.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
-func (r *TransactionRepository) GetReportByParams(ctx context.Context, tx pgx.Tx, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error) {
+func (r *TransactionRepository) GetReportByParams(ctx context.Context, conn *pgx.Conn, params *dto.TransactionReportRequestDTO) ([]*dto.TransactionReportDTO, error) {
 	// Используем разбор composite type через (row).field_name
 	query := `SELECT 
 		transaction_id,
@@ -114,7 +149,7 @@ func (r *TransactionRepository) GetReportByParams(ctx context.Context, tx pgx.Tx
 		maxTotal = &params.MaxTotal
 	}
 
-	rows, err := tx.Query(ctx, query, statusName, minTotal, maxTotal)
+	rows, err := conn.Query(ctx, query, statusName, minTotal, maxTotal)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +187,14 @@ func (r *TransactionRepository) GetReportByParams(ctx context.Context, tx pgx.Tx
 	return response, nil
 }
 
-func (r *TransactionRepository) BulkUpdateTransactionStatus(ctx context.Context, tx pgx.Tx, params *dto.BulkUpdateTransactionStatusDTO) error {
+func (r *TransactionRepository) BulkUpdateTransactionStatus(ctx context.Context, conn *pgx.Conn, params *dto.BulkUpdateTransactionStatusDTO) error {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `CALL bulk_update_transaction_status($1, $2, $3, $4)`
 
 	var minTotal *int
@@ -164,6 +206,10 @@ func (r *TransactionRepository) BulkUpdateTransactionStatus(ctx context.Context,
 		maxTotal = &params.MaxTotal
 	}
 
-	_, err := tx.Exec(ctx, query, params.OldStatusID, params.NewStatusID, minTotal, maxTotal)
-	return err
+	_, err = tx.Exec(ctx, query, params.OldStatusID, params.NewStatusID, minTotal, maxTotal)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

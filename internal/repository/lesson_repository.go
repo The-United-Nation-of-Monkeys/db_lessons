@@ -7,11 +7,11 @@ import (
 )
 
 type LessonRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateLessonDTO) (*dto.LessonDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.LessonDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.LessonDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateLessonDTO) (*dto.LessonDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateLessonDTO) (*dto.LessonDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.LessonDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.LessonDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateLessonDTO) (*dto.LessonDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
 }
 
 type LessonRepository struct{}
@@ -20,32 +20,44 @@ func NewLessonRepository() *LessonRepository {
 	return &LessonRepository{}
 }
 
-func (r *LessonRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateLessonDTO) (*dto.LessonDTO, error) {
+func (r *LessonRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateLessonDTO) (*dto.LessonDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `INSERT INTO lesson (name, description, open_time, video_link, lesson_text) 
 			  VALUES ($1, $2, $3, $4, $5) 
 			  RETURNING lesson_id, name, description, open_time, video_link, lesson_text`
 	var lesson dto.LessonDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Description, data.OpenTime, data.VideoLink, data.LessonText).
+	err = tx.QueryRow(ctx, query, data.Name, data.Description, data.OpenTime, data.VideoLink, data.LessonText).
 		Scan(&lesson.LessonID, &lesson.Name, &lesson.Description, &lesson.OpenTime, &lesson.VideoLink, &lesson.LessonText)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &lesson, nil
 }
 
-func (r *LessonRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.LessonDTO, error) {
+func (r *LessonRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.LessonDTO, error) {
 	query := `SELECT lesson_id, name, description, open_time, video_link, lesson_text FROM lesson WHERE lesson_id = $1`
 	var lesson dto.LessonDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&lesson.LessonID, &lesson.Name, &lesson.Description, &lesson.OpenTime, &lesson.VideoLink, &lesson.LessonText)
+	err := conn.QueryRow(ctx, query, id).Scan(&lesson.LessonID, &lesson.Name, &lesson.Description, &lesson.OpenTime, &lesson.VideoLink, &lesson.LessonText)
 	if err != nil {
 		return nil, err
 	}
 	return &lesson, nil
 }
 
-func (r *LessonRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.LessonDTO, error) {
+func (r *LessonRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.LessonDTO, error) {
 	query := `SELECT lesson_id, name, description, open_time, video_link, lesson_text FROM lesson`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +74,14 @@ func (r *LessonRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Lesson
 	return lessons, nil
 }
 
-func (r *LessonRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateLessonDTO) (*dto.LessonDTO, error) {
+func (r *LessonRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateLessonDTO) (*dto.LessonDTO, error) {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `UPDATE lesson SET 
 			  name = COALESCE($1, name),
 			  description = COALESCE($2, description),
@@ -72,16 +91,32 @@ func (r *LessonRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *
 			  WHERE lesson_id = $6
 			  RETURNING lesson_id, name, description, open_time, video_link, lesson_text`
 	var lesson dto.LessonDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Description, data.OpenTime, data.VideoLink, data.LessonText, id).
+	err = tx.QueryRow(ctx, query, data.Name, data.Description, data.OpenTime, data.VideoLink, data.LessonText, id).
 		Scan(&lesson.LessonID, &lesson.Name, &lesson.Description, &lesson.OpenTime, &lesson.VideoLink, &lesson.LessonText)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &lesson, nil
 }
 
-func (r *LessonRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *LessonRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
+	// Begin transaction for write operation
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `DELETE FROM lesson WHERE lesson_id = $1`
-	_, err := tx.Exec(ctx, query, id)
-	return err
+	_, err = tx.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

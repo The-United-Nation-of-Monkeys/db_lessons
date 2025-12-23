@@ -8,9 +8,9 @@ import (
 )
 
 type StudentCategoryStatsRepositoryInterface interface {
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.StudentCategoryStatsDTO, error)
-	GetByStudentID(ctx context.Context, tx pgx.Tx, studentID int) ([]*dto.StudentCategoryStatsDTO, error)
-	GetByCategoryID(ctx context.Context, tx pgx.Tx, categoryID int) ([]*dto.StudentCategoryStatsDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.StudentCategoryStatsDTO, error)
+	GetByStudentID(ctx context.Context, conn *pgx.Conn, studentID int) ([]*dto.StudentCategoryStatsDTO, error)
+	GetByCategoryID(ctx context.Context, conn *pgx.Conn, categoryID int) ([]*dto.StudentCategoryStatsDTO, error)
 }
 
 type StudentCategoryStatsRepository struct{}
@@ -19,7 +19,7 @@ func NewStudentCategoryStatsRepository() *StudentCategoryStatsRepository {
 	return &StudentCategoryStatsRepository{}
 }
 
-func (r *StudentCategoryStatsRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.StudentCategoryStatsDTO, error) {
+func (r *StudentCategoryStatsRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.StudentCategoryStatsDTO, error) {
 	query := `SELECT 
 		student_id,
 		student_name,
@@ -32,7 +32,7 @@ func (r *StudentCategoryStatsRepository) GetAll(ctx context.Context, tx pgx.Tx) 
 		success_percent
 	FROM v_student_category_stats`
 	
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (r *StudentCategoryStatsRepository) GetAll(ctx context.Context, tx pgx.Tx) 
 	return stats, nil
 }
 
-func (r *StudentCategoryStatsRepository) GetByStudentID(ctx context.Context, tx pgx.Tx, studentID int) ([]*dto.StudentCategoryStatsDTO, error) {
+func (r *StudentCategoryStatsRepository) GetByStudentID(ctx context.Context, conn *pgx.Conn, studentID int) ([]*dto.StudentCategoryStatsDTO, error) {
 	query := `SELECT 
 		student_id,
 		student_name,
@@ -79,7 +79,7 @@ func (r *StudentCategoryStatsRepository) GetByStudentID(ctx context.Context, tx 
 	FROM v_student_category_stats
 	WHERE student_id = $1`
 	
-	rows, err := tx.Query(ctx, query, studentID)
+	rows, err := conn.Query(ctx, query, studentID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (r *StudentCategoryStatsRepository) GetByStudentID(ctx context.Context, tx 
 	return stats, nil
 }
 
-func (r *StudentCategoryStatsRepository) GetByCategoryID(ctx context.Context, tx pgx.Tx, categoryID int) ([]*dto.StudentCategoryStatsDTO, error) {
+func (r *StudentCategoryStatsRepository) GetByCategoryID(ctx context.Context, conn *pgx.Conn, categoryID int) ([]*dto.StudentCategoryStatsDTO, error) {
 	query := `SELECT 
 		student_id,
 		student_name,
@@ -126,7 +126,7 @@ func (r *StudentCategoryStatsRepository) GetByCategoryID(ctx context.Context, tx
 	FROM v_student_category_stats
 	WHERE category_id = $1`
 	
-	rows, err := tx.Query(ctx, query, categoryID)
+	rows, err := conn.Query(ctx, query, categoryID)
 	if err != nil {
 		return nil, err
 	}

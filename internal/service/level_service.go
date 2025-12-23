@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type LevelServiceInterface interface {
 }
 
 type LevelService struct {
-	dbPool          *pgxpool.Pool
+	baseService *BaseService
 	levelRepository repository.LevelRepositoryInterface
 }
 
-func NewLevelService(dbPool *pgxpool.Pool, levelRepository repository.LevelRepositoryInterface) *LevelService {
+func NewLevelService(baseService *BaseService, levelRepository repository.LevelRepositoryInterface) *LevelService {
 	return &LevelService{
-		dbPool:          dbPool,
+		baseService: baseService,
 		levelRepository: levelRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *LevelService) Create(ctx context.Context, data *dto.CreateLevelDTO) (*d
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	level, err := s.levelRepository.Create(ctx, tx, data)
+	level, err := s.levelRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create level error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *LevelService) GetByID(ctx context.Context, id int) (*dto.LevelDTO, erro
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	level, err := s.levelRepository.GetByID(ctx, tx, id)
+	level, err := s.levelRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *LevelService) GetAll(ctx context.Context) ([]*dto.LevelDTO, error) {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	levels, err := s.levelRepository.GetAll(ctx, tx)
+	levels, err := s.levelRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all levels error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *LevelService) Update(ctx context.Context, id int, data *dto.UpdateLevel
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.levelRepository.GetByID(ctx, tx, id)
+	_, err = s.levelRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *LevelService) Update(ctx context.Context, id int, data *dto.UpdateLevel
 		return nil, exception.InternalServerError()
 	}
 
-	level, err := s.levelRepository.Update(ctx, tx, id, data)
+	level, err := s.levelRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update level error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -145,14 +134,14 @@ func (s *LevelService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.levelRepository.GetByID(ctx, tx, id)
+	_, err = s.levelRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -163,14 +152,9 @@ func (s *LevelService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.levelRepository.Delete(ctx, tx, id)
+	err = s.levelRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete level error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

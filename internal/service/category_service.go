@@ -8,7 +8,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -21,13 +20,13 @@ type CategoryServiceInterface interface {
 }
 
 type CategoryService struct {
-	dbPool             *pgxpool.Pool
+	baseService *BaseService
 	categoryRepository repository.CategoryRepositoryInterface
 }
 
-func NewCategoryService(dbPool *pgxpool.Pool, categoryRepository repository.CategoryRepositoryInterface) *CategoryService {
+func NewCategoryService(baseService *BaseService, categoryRepository repository.CategoryRepositoryInterface) *CategoryService {
 	return &CategoryService{
-		dbPool:             dbPool,
+		baseService: baseService,
 		categoryRepository: categoryRepository,
 	}
 }
@@ -36,21 +35,17 @@ func (s *CategoryService) Create(ctx context.Context, data *dto.CreateCategoryDT
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	category, err := s.categoryRepository.Create(ctx, tx, data)
+	category, err := s.categoryRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create category error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -62,14 +57,15 @@ func (s *CategoryService) GetByID(ctx context.Context, id int) (*dto.CategoryDTO
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	category, err := s.categoryRepository.GetByID(ctx, tx, id)
+	category, err := s.categoryRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -88,14 +84,15 @@ func (s *CategoryService) GetAll(ctx context.Context) ([]*dto.CategoryDTO, error
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	categories, err := s.categoryRepository.GetAll(ctx, tx)
+	categories, err := s.categoryRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all categories error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -109,14 +106,15 @@ func (s *CategoryService) Update(ctx context.Context, id int, data *dto.UpdateCa
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.categoryRepository.GetByID(ctx, tx, id)
+	_, err = s.categoryRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -127,14 +125,9 @@ func (s *CategoryService) Update(ctx context.Context, id int, data *dto.UpdateCa
 		return nil, exception.InternalServerError()
 	}
 
-	category, err := s.categoryRepository.Update(ctx, tx, id, data)
+	category, err := s.categoryRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update category error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -146,14 +139,15 @@ func (s *CategoryService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	// Получаем соединение с БД (роль будет получена из контекста)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "get db conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.categoryRepository.GetByID(ctx, tx, id)
+	_, err = s.categoryRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -164,14 +158,9 @@ func (s *CategoryService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.categoryRepository.Delete(ctx, tx, id)
+	err = s.categoryRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete category error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

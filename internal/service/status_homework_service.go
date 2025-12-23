@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type StatusHomeworkServiceInterface interface {
 }
 
 type StatusHomeworkService struct {
-	dbPool                   *pgxpool.Pool
+	baseService *BaseService
 	statusHomeworkRepository repository.StatusHomeworkRepositoryInterface
 }
 
-func NewStatusHomeworkService(dbPool *pgxpool.Pool, statusHomeworkRepository repository.StatusHomeworkRepositoryInterface) *StatusHomeworkService {
+func NewStatusHomeworkService(baseService *BaseService, statusHomeworkRepository repository.StatusHomeworkRepositoryInterface) *StatusHomeworkService {
 	return &StatusHomeworkService{
-		dbPool:                   dbPool,
+		baseService: baseService,
 		statusHomeworkRepository: statusHomeworkRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *StatusHomeworkService) Create(ctx context.Context, data *dto.CreateStat
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statushomework, err := s.statusHomeworkRepository.Create(ctx, tx, data)
+	statushomework, err := s.statusHomeworkRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create statushomework error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *StatusHomeworkService) GetByID(ctx context.Context, id int) (*dto.Statu
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statushomework, err := s.statusHomeworkRepository.GetByID(ctx, tx, id)
+	statushomework, err := s.statusHomeworkRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *StatusHomeworkService) GetAll(ctx context.Context) ([]*dto.StatusHomewo
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statushomeworks, err := s.statusHomeworkRepository.GetAll(ctx, tx)
+	statushomeworks, err := s.statusHomeworkRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all statushomeworks error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *StatusHomeworkService) Update(ctx context.Context, id int, data *dto.Up
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.statusHomeworkRepository.GetByID(ctx, tx, id)
+	_, err = s.statusHomeworkRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *StatusHomeworkService) Update(ctx context.Context, id int, data *dto.Up
 		return nil, exception.InternalServerError()
 	}
 
-	statushomework, err := s.statusHomeworkRepository.Update(ctx, tx, id, data)
+	statushomework, err := s.statusHomeworkRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update statushomework error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -145,14 +134,14 @@ func (s *StatusHomeworkService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.statusHomeworkRepository.GetByID(ctx, tx, id)
+	_, err = s.statusHomeworkRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -163,14 +152,9 @@ func (s *StatusHomeworkService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.statusHomeworkRepository.Delete(ctx, tx, id)
+	err = s.statusHomeworkRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete statushomework error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

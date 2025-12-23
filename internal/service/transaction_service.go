@@ -8,7 +8,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -23,13 +22,13 @@ type TransactionServiceInterface interface {
 }
 
 type TransactionService struct {
-	dbPool                *pgxpool.Pool
+	baseService *BaseService
 	transactionRepository repository.TransactionRepositoryInterface
 }
 
-func NewTransactionService(dbPool *pgxpool.Pool, transactionRepository repository.TransactionRepositoryInterface) *TransactionService {
+func NewTransactionService(baseService *BaseService, transactionRepository repository.TransactionRepositoryInterface) *TransactionService {
 	return &TransactionService{
-		dbPool:                dbPool,
+		baseService: baseService,
 		transactionRepository: transactionRepository,
 	}
 }
@@ -38,21 +37,16 @@ func (s *TransactionService) Create(ctx context.Context, data *dto.CreateTransac
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	transaction, err := s.transactionRepository.Create(ctx, tx, data)
+	transaction, err := s.transactionRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create transaction error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -64,14 +58,14 @@ func (s *TransactionService) GetByID(ctx context.Context, id int) (*dto.Transact
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	transaction, err := s.transactionRepository.GetByID(ctx, tx, id)
+	transaction, err := s.transactionRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -90,14 +84,14 @@ func (s *TransactionService) GetAll(ctx context.Context) ([]*dto.TransactionDTO,
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	transactions, err := s.transactionRepository.GetAll(ctx, tx)
+	transactions, err := s.transactionRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all transactions error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -111,14 +105,14 @@ func (s *TransactionService) Update(ctx context.Context, id int, data *dto.Updat
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.transactionRepository.GetByID(ctx, tx, id)
+	_, err = s.transactionRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -129,14 +123,9 @@ func (s *TransactionService) Update(ctx context.Context, id int, data *dto.Updat
 		return nil, exception.InternalServerError()
 	}
 
-	transaction, err := s.transactionRepository.Update(ctx, tx, id, data)
+	transaction, err := s.transactionRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update transaction error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -148,14 +137,14 @@ func (s *TransactionService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.transactionRepository.GetByID(ctx, tx, id)
+	_, err = s.transactionRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -166,14 +155,9 @@ func (s *TransactionService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.transactionRepository.Delete(ctx, tx, id)
+	err = s.transactionRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete transaction error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 
@@ -185,21 +169,16 @@ func (s *TransactionService) GetReportByParams(ctx context.Context, params *dto.
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetReportByParams")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	reports, err := s.transactionRepository.GetReportByParams(ctx, tx, params)
+	reports, err := s.transactionRepository.GetReportByParams(ctx, conn, params)
 	if err != nil {
 		localLogger.Error(ctx, "get report by params error", zap.Error(err), zap.Any("params", params))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -211,21 +190,16 @@ func (s *TransactionService) BulkUpdateTransactionStatus(ctx context.Context, pa
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func BulkUpdateTransactionStatus")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	err = s.transactionRepository.BulkUpdateTransactionStatus(ctx, tx, params)
+	err = s.transactionRepository.BulkUpdateTransactionStatus(ctx, conn, params)
 	if err != nil {
 		localLogger.Error(ctx, "bulk update transaction status error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

@@ -7,11 +7,11 @@ import (
 )
 
 type CurrencyRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCurrencyDTO) (*dto.CurrencyDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.CurrencyDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CurrencyDTO, error)
-	Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateCurrencyDTO) (*dto.CurrencyDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCurrencyDTO) (*dto.CurrencyDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.CurrencyDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CurrencyDTO, error)
+	Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCurrencyDTO) (*dto.CurrencyDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, id int) error
 }
 
 type CurrencyRepository struct{}
@@ -20,29 +20,40 @@ func NewCurrencyRepository() *CurrencyRepository {
 	return &CurrencyRepository{}
 }
 
-func (r *CurrencyRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCurrencyDTO) (*dto.CurrencyDTO, error) {
+func (r *CurrencyRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCurrencyDTO) (*dto.CurrencyDTO, error) {
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `INSERT INTO currency (name) VALUES ($1) RETURNING currency_id, name`
 	var currency dto.CurrencyDTO
-	err := tx.QueryRow(ctx, query, data.Name).Scan(&currency.CurrencyID, &currency.Name)
+	err = tx.QueryRow(ctx, query, data.Name).Scan(&currency.CurrencyID, &currency.Name)
 	if err != nil {
 		return nil, err
 	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &currency, nil
 }
 
-func (r *CurrencyRepository) GetByID(ctx context.Context, tx pgx.Tx, id int) (*dto.CurrencyDTO, error) {
+func (r *CurrencyRepository) GetByID(ctx context.Context, conn *pgx.Conn, id int) (*dto.CurrencyDTO, error) {
 	query := `SELECT currency_id, name FROM currency WHERE currency_id = $1`
 	var currency dto.CurrencyDTO
-	err := tx.QueryRow(ctx, query, id).Scan(&currency.CurrencyID, &currency.Name)
+	err := conn.QueryRow(ctx, query, id).Scan(&currency.CurrencyID, &currency.Name)
 	if err != nil {
 		return nil, err
 	}
 	return &currency, nil
 }
 
-func (r *CurrencyRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CurrencyDTO, error) {
+func (r *CurrencyRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CurrencyDTO, error) {
 	query := `SELECT currency_id, name FROM currency`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -59,18 +70,39 @@ func (r *CurrencyRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Curr
 	return currencies, nil
 }
 
-func (r *CurrencyRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateCurrencyDTO) (*dto.CurrencyDTO, error) {
-	query := `UPDATE currency SET name = COALESCE($1, name) WHERE currency_id = $2 RETURNING currency_id, name`
-	var currency dto.CurrencyDTO
-	err := tx.QueryRow(ctx, query, data.Name, id).Scan(&currency.CurrencyID, &currency.Name)
+func (r *CurrencyRepository) Update(ctx context.Context, conn *pgx.Conn, id int, data *dto.UpdateCurrencyDTO) (*dto.CurrencyDTO, error) {
+	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback(ctx)
+
+	query := `UPDATE currency SET name = COALESCE($1, name) WHERE currency_id = $2 RETURNING currency_id, name`
+	var currency dto.CurrencyDTO
+	err = tx.QueryRow(ctx, query, data.Name, id).Scan(&currency.CurrencyID, &currency.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
 	return &currency, nil
 }
 
-func (r *CurrencyRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *CurrencyRepository) Delete(ctx context.Context, conn *pgx.Conn, id int) error {
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
 	query := `DELETE FROM currency WHERE currency_id = $1`
-	_, err := tx.Exec(ctx, query, id)
-	return err
+	_, err = tx.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

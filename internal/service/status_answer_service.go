@@ -7,7 +7,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type StatusAnswerServiceInterface interface {
 }
 
 type StatusAnswerService struct {
-	dbPool                 *pgxpool.Pool
+	baseService *BaseService
 	statusAnswerRepository repository.StatusAnswerRepositoryInterface
 }
 
-func NewStatusAnswerService(dbPool *pgxpool.Pool, statusAnswerRepository repository.StatusAnswerRepositoryInterface) *StatusAnswerService {
+func NewStatusAnswerService(baseService *BaseService, statusAnswerRepository repository.StatusAnswerRepositoryInterface) *StatusAnswerService {
 	return &StatusAnswerService{
-		dbPool:                 dbPool,
+		baseService: baseService,
 		statusAnswerRepository: statusAnswerRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *StatusAnswerService) Create(ctx context.Context, data *dto.CreateStatus
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statusanswer, err := s.statusAnswerRepository.Create(ctx, tx, data)
+	statusanswer, err := s.statusAnswerRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create statusanswer error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *StatusAnswerService) GetByID(ctx context.Context, id int) (*dto.StatusA
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statusanswer, err := s.statusAnswerRepository.GetByID(ctx, tx, id)
+	statusanswer, err := s.statusAnswerRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *StatusAnswerService) GetAll(ctx context.Context) ([]*dto.StatusAnswerDT
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	statusanswers, err := s.statusAnswerRepository.GetAll(ctx, tx)
+	statusanswers, err := s.statusAnswerRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all statusanswers error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *StatusAnswerService) Update(ctx context.Context, id int, data *dto.Upda
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.statusAnswerRepository.GetByID(ctx, tx, id)
+	_, err = s.statusAnswerRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *StatusAnswerService) Update(ctx context.Context, id int, data *dto.Upda
 		return nil, exception.InternalServerError()
 	}
 
-	statusanswer, err := s.statusAnswerRepository.Update(ctx, tx, id, data)
+	statusanswer, err := s.statusAnswerRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update statusanswer error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -145,14 +134,14 @@ func (s *StatusAnswerService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.statusAnswerRepository.GetByID(ctx, tx, id)
+	_, err = s.statusAnswerRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -163,14 +152,9 @@ func (s *StatusAnswerService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.statusAnswerRepository.Delete(ctx, tx, id)
+	err = s.statusAnswerRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete statusanswer error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

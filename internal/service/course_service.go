@@ -8,7 +8,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -21,13 +20,13 @@ type CourseServiceInterface interface {
 }
 
 type CourseService struct {
-	dbPool           *pgxpool.Pool
+	baseService *BaseService
 	courseRepository repository.CourseRepositoryInterface
 }
 
-func NewCourseService(dbPool *pgxpool.Pool, courseRepository repository.CourseRepositoryInterface) *CourseService {
+func NewCourseService(baseService *BaseService, courseRepository repository.CourseRepositoryInterface) *CourseService {
 	return &CourseService{
-		dbPool:           dbPool,
+		baseService: baseService,
 		courseRepository: courseRepository,
 	}
 }
@@ -36,21 +35,16 @@ func (s *CourseService) Create(ctx context.Context, data *dto.CreateCourseDTO) (
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	course, err := s.courseRepository.Create(ctx, tx, data)
+	course, err := s.courseRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create course error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -62,14 +56,14 @@ func (s *CourseService) GetByID(ctx context.Context, id int) (*dto.CourseDTO, er
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	course, err := s.courseRepository.GetByID(ctx, tx, id)
+	course, err := s.courseRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -88,14 +82,14 @@ func (s *CourseService) GetAll(ctx context.Context) ([]*dto.CourseDTO, error) {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	courses, err := s.courseRepository.GetAll(ctx, tx)
+	courses, err := s.courseRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all courses error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -109,14 +103,14 @@ func (s *CourseService) Update(ctx context.Context, id int, data *dto.UpdateCour
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Update")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.courseRepository.GetByID(ctx, tx, id)
+	_, err = s.courseRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -127,14 +121,9 @@ func (s *CourseService) Update(ctx context.Context, id int, data *dto.UpdateCour
 		return nil, exception.InternalServerError()
 	}
 
-	course, err := s.courseRepository.Update(ctx, tx, id, data)
+	course, err := s.courseRepository.Update(ctx, conn, id, data)
 	if err != nil {
 		localLogger.Error(ctx, "update course error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -146,14 +135,14 @@ func (s *CourseService) Delete(ctx context.Context, id int) error {
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.courseRepository.GetByID(ctx, tx, id)
+	_, err = s.courseRepository.GetByID(ctx, conn, id)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -164,14 +153,9 @@ func (s *CourseService) Delete(ctx context.Context, id int) error {
 		return exception.InternalServerError()
 	}
 
-	err = s.courseRepository.Delete(ctx, tx, id)
+	err = s.courseRepository.Delete(ctx, conn, id)
 	if err != nil {
 		localLogger.Error(ctx, "delete course error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

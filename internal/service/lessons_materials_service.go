@@ -8,7 +8,6 @@ import (
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/database"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/exception"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -20,13 +19,13 @@ type LessonsMaterialsServiceInterface interface {
 }
 
 type LessonsMaterialsService struct {
-	dbPool                      *pgxpool.Pool
+	baseService *BaseService
 	lessonsMaterialsRepository repository.LessonsMaterialsRepositoryInterface
 }
 
-func NewLessonsMaterialsService(dbPool *pgxpool.Pool, lessonsMaterialsRepository repository.LessonsMaterialsRepositoryInterface) *LessonsMaterialsService {
+func NewLessonsMaterialsService(baseService *BaseService, lessonsMaterialsRepository repository.LessonsMaterialsRepositoryInterface) *LessonsMaterialsService {
 	return &LessonsMaterialsService{
-		dbPool:                      dbPool,
+		baseService: baseService,
 		lessonsMaterialsRepository: lessonsMaterialsRepository,
 	}
 }
@@ -35,21 +34,16 @@ func (s *LessonsMaterialsService) Create(ctx context.Context, data *dto.CreateLe
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Create")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	relation, err := s.lessonsMaterialsRepository.Create(ctx, tx, data)
+	relation, err := s.lessonsMaterialsRepository.Create(ctx, conn, data)
 	if err != nil {
 		localLogger.Error(ctx, "create relation error", zap.Error(err))
-		return nil, exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
 
@@ -61,14 +55,14 @@ func (s *LessonsMaterialsService) GetByID(ctx context.Context, lessonID, materia
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetByID")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	relation, err := s.lessonsMaterialsRepository.GetByID(ctx, tx, lessonID, materialID)
+	relation, err := s.lessonsMaterialsRepository.GetByID(ctx, conn, lessonID, materialID)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -87,14 +81,14 @@ func (s *LessonsMaterialsService) GetAll(ctx context.Context) ([]*dto.LessonsMat
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func GetAll")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return nil, exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	relations, err := s.lessonsMaterialsRepository.GetAll(ctx, tx)
+	relations, err := s.lessonsMaterialsRepository.GetAll(ctx, conn)
 	if err != nil {
 		localLogger.Error(ctx, "get all relations error", zap.Error(err))
 		return nil, exception.InternalServerError()
@@ -108,14 +102,14 @@ func (s *LessonsMaterialsService) Delete(ctx context.Context, lessonID, material
 	localLogger := logger.GetLoggerFromCtx(ctx)
 	localLogger.Info(ctx, "start srv func Delete")
 
-	tx, err := s.dbPool.Begin(ctx)
+	conn, err := s.baseService.GetDBConn(ctx, "")
 	if err != nil {
-		localLogger.Error(ctx, "begin tx error", zap.Error(err))
+		localLogger.Error(ctx, "begin conn error", zap.Error(err))
 		return exception.InternalServerError()
 	}
-	defer database.RollbackTx(ctx, tx)
+	defer conn.Close(ctx)
 
-	_, err = s.lessonsMaterialsRepository.GetByID(ctx, tx, lessonID, materialID)
+	_, err = s.lessonsMaterialsRepository.GetByID(ctx, conn, lessonID, materialID)
 	if err != nil {
 		pgErr := database.ValidatePgxError(err)
 		if pgErr != nil && pgErr.Type == database.TypeNoRows {
@@ -126,14 +120,9 @@ func (s *LessonsMaterialsService) Delete(ctx context.Context, lessonID, material
 		return exception.InternalServerError()
 	}
 
-	err = s.lessonsMaterialsRepository.Delete(ctx, tx, lessonID, materialID)
+	err = s.lessonsMaterialsRepository.Delete(ctx, conn, lessonID, materialID)
 	if err != nil {
 		localLogger.Error(ctx, "delete relation error", zap.Error(err))
-		return exception.InternalServerError()
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		localLogger.Error(ctx, "commit error", zap.Error(err))
 		return exception.InternalServerError()
 	}
 

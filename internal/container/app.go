@@ -24,11 +24,11 @@ func NewApp() {
 		log.Fatalf("get config error: %v", err)
 	}
 
-	dbPool, err := database.New(ctx, cfg.DataBase)
-	if err != nil {
-		log.Fatalf("init database error: %v", err)
+	// Применяем миграции под пользователем из конфигурации
+	log.Printf("Applying database migrations as user: %s", cfg.DataBase.User)
+	if err := database.RunMigrations(ctx, cfg.DataBase); err != nil {
+		log.Fatalf("migration error: %v", err)
 	}
-	defer dbPool.Close()
 
 	redisConn, err := redis.New(cfg.Redis)
 	if err != nil {
@@ -36,7 +36,7 @@ func NewApp() {
 	}
 
 	repositoryList := initializer.NewRepositoryList()
-	serviceList := initializer.NewServiceList(repositoryList, dbPool, cfg)
+	serviceList := initializer.NewServiceList(repositoryList, cfg)
 	app := server.NewServer(cfg, serviceList, redisConn)
 
 	serverPortStr := strconv.Itoa(int(cfg.Server.PortHttp))

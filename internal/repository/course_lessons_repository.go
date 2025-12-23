@@ -9,10 +9,10 @@ import (
 
 // CourseLessonsRepository
 type CourseLessonsRepositoryInterface interface {
-	Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCourseLessonsDTO) (*dto.CourseLessonsDTO, error)
-	GetByID(ctx context.Context, tx pgx.Tx, lessonID int) (*dto.CourseLessonsDTO, error)
-	GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CourseLessonsDTO, error)
-	Delete(ctx context.Context, tx pgx.Tx, lessonID int) error
+	Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCourseLessonsDTO) (*dto.CourseLessonsDTO, error)
+	GetByID(ctx context.Context, conn *pgx.Conn, lessonID int) (*dto.CourseLessonsDTO, error)
+	GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CourseLessonsDTO, error)
+	Delete(ctx context.Context, conn *pgx.Conn, lessonID int) error
 }
 
 type CourseLessonsRepository struct{}
@@ -21,29 +21,29 @@ func NewCourseLessonsRepository() *CourseLessonsRepository {
 	return &CourseLessonsRepository{}
 }
 
-func (r *CourseLessonsRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateCourseLessonsDTO) (*dto.CourseLessonsDTO, error) {
+func (r *CourseLessonsRepository) Create(ctx context.Context, conn *pgx.Conn, data *dto.CreateCourseLessonsDTO) (*dto.CourseLessonsDTO, error) {
 	query := `INSERT INTO course_lessons (lesson_id, course_id) VALUES ($1, $2) RETURNING lesson_id, course_id`
 	var relation dto.CourseLessonsDTO
-	err := tx.QueryRow(ctx, query, data.LessonID, data.CourseID).Scan(&relation.LessonID, &relation.CourseID)
+	err := conn.QueryRow(ctx, query, data.LessonID, data.CourseID).Scan(&relation.LessonID, &relation.CourseID)
 	if err != nil {
 		return nil, err
 	}
 	return &relation, nil
 }
 
-func (r *CourseLessonsRepository) GetByID(ctx context.Context, tx pgx.Tx, lessonID int) (*dto.CourseLessonsDTO, error) {
+func (r *CourseLessonsRepository) GetByID(ctx context.Context, conn *pgx.Conn, lessonID int) (*dto.CourseLessonsDTO, error) {
 	query := `SELECT lesson_id, course_id FROM course_lessons WHERE lesson_id = $1`
 	var relation dto.CourseLessonsDTO
-	err := tx.QueryRow(ctx, query, lessonID).Scan(&relation.LessonID, &relation.CourseID)
+	err := conn.QueryRow(ctx, query, lessonID).Scan(&relation.LessonID, &relation.CourseID)
 	if err != nil {
 		return nil, err
 	}
 	return &relation, nil
 }
 
-func (r *CourseLessonsRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.CourseLessonsDTO, error) {
+func (r *CourseLessonsRepository) GetAll(ctx context.Context, conn *pgx.Conn) ([]*dto.CourseLessonsDTO, error) {
 	query := `SELECT lesson_id, course_id FROM course_lessons`
-	rows, err := tx.Query(ctx, query)
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +60,9 @@ func (r *CourseLessonsRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto
 	return relations, nil
 }
 
-func (r *CourseLessonsRepository) Delete(ctx context.Context, tx pgx.Tx, lessonID int) error {
+func (r *CourseLessonsRepository) Delete(ctx context.Context, conn *pgx.Conn, lessonID int) error {
 	query := `DELETE FROM course_lessons WHERE lesson_id = $1`
-	_, err := tx.Exec(ctx, query, lessonID)
+	_, err := conn.Exec(ctx, query, lessonID)
 	return err
 }
 

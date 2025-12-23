@@ -3,6 +3,7 @@ package initializer
 import "github.com/The-United-Nation-of-Monkeys/db_lessons/internal/repository"
 
 type RepositoryList struct {
+	AuthRepository                repository.AuthRepositoryInterface
 	StudentRepository             repository.StudentRepositoryInterface
 	TeacherRepository             repository.TeacherRepositoryInterface
 	CategoryRepository            repository.CategoryRepositoryInterface
@@ -31,6 +32,7 @@ type RepositoryList struct {
 
 func NewRepositoryList() *RepositoryList {
 	return &RepositoryList{
+		AuthRepository:                repository.NewAuthRepository(),
 		StudentRepository:             repository.NewStudentRepository(),
 		TeacherRepository:             repository.NewTeacherRepository(),
 		CategoryRepository:            repository.NewCategoryRepository(),

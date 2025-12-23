@@ -36,7 +36,7 @@ func NewApp() {
 	}
 
 	repositoryList := initializer.NewRepositoryList()
-	serviceList := initializer.NewServiceList(repositoryList, dbPool)
+	serviceList := initializer.NewServiceList(repositoryList, dbPool, cfg)
 	app := server.NewServer(cfg, serviceList, redisConn)
 
 	serverPortStr := strconv.Itoa(int(cfg.Server.PortHttp))

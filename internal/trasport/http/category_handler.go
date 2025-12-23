@@ -32,6 +32,7 @@ func NewCategoryHandler(categoryService service.CategoryServiceInterface) *Categ
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /categories [post]
+// @Security BearerAuth
 func (h *CategoryHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *CategoryHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /categories/{id} [get]
+// @Security BearerAuth
 func (h *CategoryHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *CategoryHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.CategoryDTO
 // @Failure 500 {object} map[string]string
 // @Router /categories [get]
+// @Security BearerAuth
 func (h *CategoryHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *CategoryHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /categories/{id} [put]
+// @Security BearerAuth
 func (h *CategoryHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *CategoryHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /categories/{id} [delete]
+// @Security BearerAuth
 func (h *CategoryHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

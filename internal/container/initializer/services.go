@@ -1,11 +1,17 @@
 package initializer
 
 import (
+	"time"
+
+	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/config"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/service"
+	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/jwt"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ServiceList struct {
+	JWTService               *jwt.ServiceJWT
+	AuthService              service.AuthServiceInterface
 	StudentService           service.StudentServiceInterface
 	TeacherService           service.TeacherServiceInterface
 	CategoryService          service.CategoryServiceInterface
@@ -32,8 +38,41 @@ type ServiceList struct {
 	TransactionsCoursesService     service.TransactionsCoursesServiceInterface
 }
 
-func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool) *ServiceList {
+func NewServiceList(repositories *RepositoryList, dbPool *pgxpool.Pool, cfg *config.Config) *ServiceList {
+	// Load JWT keys
+	privateKeyPath := cfg.JWT.GetPrivateKeyPath()
+	publicKeyPath := cfg.JWT.GetPublicKeyPath()
+	
+	privateKey, err := jwt.LoadPrivateKey(privateKeyPath)
+	if err != nil {
+		panic("failed to load private key: " + err.Error())
+	}
+
+	publicKey, err := jwt.LoadPublicKey(publicKeyPath)
+	if err != nil {
+		panic("failed to load public key: " + err.Error())
+	}
+
+	// Parse time durations
+	refreshTimeExp, err := time.ParseDuration(cfg.JWT.RefreshTimeExp)
+	if err != nil {
+		panic("failed to parse refresh time exp: " + err.Error())
+	}
+
+	accessTimeExp, err := time.ParseDuration(cfg.JWT.AccessTimeExp)
+	if err != nil {
+		panic("failed to parse access time exp: " + err.Error())
+	}
+
+	// Create JWT service
+	jwtService := jwt.NewServiceJWT(privateKey, publicKey, refreshTimeExp, accessTimeExp)
+
+	// Create auth service
+	authService := service.NewAuthService(repositories.AuthRepository, jwtService, cfg.DataBase)
+
 	return &ServiceList{
+		JWTService:               jwtService,
+		AuthService:              authService,
 		StudentService:           service.NewStudentService(dbPool, repositories.StudentRepository),
 		TeacherService:           service.NewTeacherService(dbPool, repositories.TeacherRepository),
 		CategoryService:          service.NewCategoryService(dbPool, repositories.CategoryRepository),

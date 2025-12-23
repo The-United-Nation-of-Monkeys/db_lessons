@@ -32,6 +32,7 @@ func NewLessonsMaterialsHandler(lessonsMaterialsService service.LessonsMaterials
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lessons-materials [post]
+// @Security BearerAuth
 func (h *LessonsMaterialsHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -64,6 +65,7 @@ func (h *LessonsMaterialsHandler) Create(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lessons-materials/{lesson_id}/{material_id} [get]
+// @Security BearerAuth
 func (h *LessonsMaterialsHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -97,6 +99,7 @@ func (h *LessonsMaterialsHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.LessonsMaterialsDTO
 // @Failure 500 {object} map[string]string
 // @Router /lessons-materials [get]
+// @Security BearerAuth
 func (h *LessonsMaterialsHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -121,6 +124,7 @@ func (h *LessonsMaterialsHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lessons-materials/{lesson_id}/{material_id} [delete]
+// @Security BearerAuth
 func (h *LessonsMaterialsHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

@@ -32,6 +32,7 @@ func NewCurrencyHandler(currencyService service.CurrencyServiceInterface) *Curre
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /currencies [post]
+// @Security BearerAuth
 func (h *CurrencyHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *CurrencyHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /currencies/{id} [get]
+// @Security BearerAuth
 func (h *CurrencyHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *CurrencyHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.CurrencyDTO
 // @Failure 500 {object} map[string]string
 // @Router /currencies [get]
+// @Security BearerAuth
 func (h *CurrencyHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *CurrencyHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /currencies/{id} [put]
+// @Security BearerAuth
 func (h *CurrencyHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *CurrencyHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /currencies/{id} [delete]
+// @Security BearerAuth
 func (h *CurrencyHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

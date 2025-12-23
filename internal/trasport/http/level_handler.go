@@ -32,6 +32,7 @@ func NewLevelHandler(levelService service.LevelServiceInterface) *LevelHandler {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /levels [post]
+// @Security BearerAuth
 func (h *LevelHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *LevelHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /levels/{id} [get]
+// @Security BearerAuth
 func (h *LevelHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *LevelHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.LevelDTO
 // @Failure 500 {object} map[string]string
 // @Router /levels [get]
+// @Security BearerAuth
 func (h *LevelHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *LevelHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /levels/{id} [put]
+// @Security BearerAuth
 func (h *LevelHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *LevelHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /levels/{id} [delete]
+// @Security BearerAuth
 func (h *LevelHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

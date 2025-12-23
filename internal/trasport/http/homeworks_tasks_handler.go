@@ -32,6 +32,7 @@ func NewHomeworksTasksHandler(homeworksTasksService service.HomeworksTasksServic
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks-tasks [post]
+// @Security BearerAuth
 func (h *HomeworksTasksHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -64,6 +65,7 @@ func (h *HomeworksTasksHandler) Create(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks-tasks/{task_id}/{homework_id} [get]
+// @Security BearerAuth
 func (h *HomeworksTasksHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -97,6 +99,7 @@ func (h *HomeworksTasksHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.HomeworksTasksDTO
 // @Failure 500 {object} map[string]string
 // @Router /homeworks-tasks [get]
+// @Security BearerAuth
 func (h *HomeworksTasksHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -121,6 +124,7 @@ func (h *HomeworksTasksHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks-tasks/{task_id}/{homework_id} [delete]
+// @Security BearerAuth
 func (h *HomeworksTasksHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

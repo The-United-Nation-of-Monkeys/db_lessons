@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/dto"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type StudentRepositoryInterface interface {
@@ -21,11 +22,17 @@ func NewStudentRepository() *StudentRepository {
 }
 
 func (r *StudentRepository) Create(ctx context.Context, tx pgx.Tx, data *dto.CreateStudentDTO) (*dto.StudentDTO, error) {
+	// Hash password before storing
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `INSERT INTO student (name, surname, email, password) 
 			  VALUES ($1, $2, $3, $4) 
 			  RETURNING student_id, name, surname, email, password`
 	var student dto.StudentDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password).
+	err = tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, string(hashedPassword)).
 		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password)
 	if err != nil {
 		return nil, err
@@ -63,6 +70,16 @@ func (r *StudentRepository) GetAll(ctx context.Context, tx pgx.Tx) ([]*dto.Stude
 }
 
 func (r *StudentRepository) Update(ctx context.Context, tx pgx.Tx, id int, data *dto.UpdateStudentDTO) (*dto.StudentDTO, error) {
+	var hashedPassword *string
+	if data.Password != nil {
+		hashed, err := bcrypt.GenerateFromPassword([]byte(*data.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		hashedStr := string(hashed)
+		hashedPassword = &hashedStr
+	}
+
 	query := `UPDATE student SET 
 			  name = COALESCE($1, name),
 			  surname = COALESCE($2, surname),
@@ -71,7 +88,7 @@ func (r *StudentRepository) Update(ctx context.Context, tx pgx.Tx, id int, data 
 			  WHERE student_id = $5
 			  RETURNING student_id, name, surname, email, password`
 	var student dto.StudentDTO
-	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, data.Password, id).
+	err := tx.QueryRow(ctx, query, data.Name, data.Surname, data.Email, hashedPassword, id).
 		Scan(&student.StudentID, &student.Name, &student.Surname, &student.Email, &student.Password)
 	if err != nil {
 		return nil, err

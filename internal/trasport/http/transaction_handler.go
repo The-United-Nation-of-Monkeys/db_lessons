@@ -32,6 +32,7 @@ func NewTransactionHandler(transactionService service.TransactionServiceInterfac
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions [post]
+// @Security BearerAuth
 func (h *TransactionHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *TransactionHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /transactions/{id} [get]
+// @Security BearerAuth
 func (h *TransactionHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *TransactionHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.TransactionDTO
 // @Failure 500 {object} map[string]string
 // @Router /transactions [get]
+// @Security BearerAuth
 func (h *TransactionHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *TransactionHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions/{id} [put]
+// @Security BearerAuth
 func (h *TransactionHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *TransactionHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions/{id} [delete]
+// @Security BearerAuth
 func (h *TransactionHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -180,6 +185,7 @@ func (h *TransactionHandler) Delete(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions/report [get]
+// @Security BearerAuth
 func (h *TransactionHandler) GetReportByParams(ctx fiber.Ctx) error {
 	params := &dto.TransactionReportRequestDTO{
 		StatusName: ctx.Query("status_name"),
@@ -216,6 +222,7 @@ func (h *TransactionHandler) GetReportByParams(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions/bulk-update-status [post]
+// @Security BearerAuth
 func (h *TransactionHandler) BulkUpdateTransactionStatus(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

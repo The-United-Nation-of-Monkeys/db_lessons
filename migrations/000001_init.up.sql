@@ -14,66 +14,74 @@ CREATE TABLE student (
 );
 
 CREATE TABLE teacher (
-                         teacher_id SERIAL PRIMARY KEY,
+    teacher_id SERIAL PRIMARY KEY,
                          name       TEXT,
                          surname    TEXT,
                          email      TEXT UNIQUE,
                          password   TEXT
 );
 
+CREATE TABLE admin (
+                       admin_id SERIAL PRIMARY KEY,
+                       name     TEXT,
+                       surname  TEXT,
+                       email    TEXT UNIQUE,
+    password TEXT
+);
+
 CREATE TABLE category (
-                          category_id SERIAL PRIMARY KEY,
+    category_id SERIAL PRIMARY KEY,
                           name        TEXT
 );
 
 CREATE TABLE currency (
-                          currency_id SERIAL PRIMARY KEY,
+    currency_id SERIAL PRIMARY KEY,
                           name        TEXT
 );
 
 CREATE TABLE course (
                         course_id   SERIAL PRIMARY KEY,
                         name        TEXT,
-                        description TEXT,
-                        category_id INT,
+    description TEXT,
+    category_id INT,
                         start_date  DATE,
                         end_date    DATE,
                         price       INT CHECK (price >= 0),
-                        currency_id INT,
+    currency_id INT,
                         CHECK (start_date <= end_date),
                         CHECK (start_date >= CURRENT_DATE)
 );
 
 CREATE TABLE teachers_courses (
                                   course_id  INT,
-                                  teacher_id INT,
-                                  PRIMARY KEY (course_id, teacher_id)
+    teacher_id INT,
+    PRIMARY KEY (course_id, teacher_id)
 );
 
 CREATE TABLE course_lessons (
-                                lesson_id INT PRIMARY KEY,
-                                course_id INT
+    lesson_id INT PRIMARY KEY,
+    course_id INT
 );
 
 CREATE TABLE lessons_materials (
                                    lesson_id   INT,
-                                   material_id INT,
-                                   PRIMARY KEY (lesson_id, material_id)
+    material_id INT,
+    PRIMARY KEY (lesson_id, material_id)
 );
 
 CREATE TABLE lesson (
                         lesson_id   SERIAL PRIMARY KEY,
                         name        TEXT,
-                        description TEXT,
+    description TEXT,
                         open_time   TIMESTAMPTZ,
                         video_link  TEXT,
-                        lesson_text TEXT
+    lesson_text TEXT
 );
 
 CREATE TABLE lesson_homeworks (
                                   lesson_id   INT,
-                                  homework_id INT,
-                                  PRIMARY KEY (lesson_id, homework_id)
+    homework_id INT,
+    PRIMARY KEY (lesson_id, homework_id)
 );
 
 CREATE TABLE homework (
@@ -85,17 +93,17 @@ CREATE TABLE homework (
 
 CREATE TABLE homeworks_tasks (
                                  task_id     INT,
-                                 homework_id INT,
-                                 PRIMARY KEY (task_id, homework_id)
+    homework_id INT,
+    PRIMARY KEY (task_id, homework_id)
 );
 
 CREATE TABLE level (
-                       level_id SERIAL PRIMARY KEY,
+    level_id SERIAL PRIMARY KEY,
                        name     TEXT
 );
 
 CREATE TABLE subcategory (
-                             subcategory_id SERIAL PRIMARY KEY,
+    subcategory_id SERIAL PRIMARY KEY,
                              name           TEXT,
                              category_id    INT
 );
@@ -108,16 +116,16 @@ CREATE TABLE task (
                       points         INT CHECK (points >= 0),
                       level_id       INT,
                       category_id    INT,
-                      subcategory_id INT
+    subcategory_id INT
 );
 
 CREATE TABLE status_homework (
-                                 status_homework_id SERIAL PRIMARY KEY,
+    status_homework_id SERIAL PRIMARY KEY,
                                  name               TEXT
 );
 
 CREATE TABLE status_answer (
-                               status_answer_id SERIAL PRIMARY KEY,
+    status_answer_id SERIAL PRIMARY KEY,
                                name             TEXT
 );
 
@@ -134,30 +142,30 @@ CREATE TABLE homework_result (
                                  student_id         INT,
                                  task_id            INT,
                                  answer             TEXT,
-                                 status_homework_id INT,
+    status_homework_id INT,
                                  points             INT CHECK (points >= 0)
 );
 
 CREATE TABLE status_transaction (
-                                    status_transaction_id SERIAL PRIMARY KEY,
+    status_transaction_id SERIAL PRIMARY KEY,
                                     name                  TEXT
 );
 
 CREATE TABLE "transaction" (
-                               transaction_id SERIAL PRIMARY KEY,
+    transaction_id SERIAL PRIMARY KEY,
                                student_id     INT,
                                status_id      INT,
                                total_price    INT CHECK (total_price >= 0)
 );
 
 CREATE TABLE transactions_courses (
-                                      transaction_id INT,
+    transaction_id INT,
                                       course_id      INT,
-                                      PRIMARY KEY (transaction_id, course_id)
+    PRIMARY KEY (transaction_id, course_id)
 );
 
 CREATE TABLE material (
-                          material_id SERIAL PRIMARY KEY,
+    material_id SERIAL PRIMARY KEY,
                           source      TEXT,
                           extension   VARCHAR(7) CHECK (extension ~ '^[a-zA-Z0-9]{1,7}$'),
                           size        INT CHECK (size >= 0)

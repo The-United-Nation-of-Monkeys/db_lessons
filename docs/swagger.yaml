@@ -1,5 +1,22 @@
 basePath: /api/v1
 definitions:
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO:
+    properties:
+      access_token:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+      surname:
+        type: string
+      user_id:
+        type: integer
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO:
     properties:
       max_total:
@@ -389,6 +406,23 @@ definitions:
       name:
         type: string
     type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LoginDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        enum:
+        - admin
+        - student
+        - teacher
+        type: string
+    required:
+    - email
+    - password
+    - role
+    type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.MaterialDTO:
     properties:
       extension:
@@ -398,6 +432,11 @@ definitions:
       size:
         type: integer
       source:
+        type: string
+    type: object
+  github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.RefreshTokenDTO:
+    properties:
+      refresh_token:
         type: string
     type: object
   github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.StatusAnswerDTO:
@@ -720,6 +759,92 @@ info:
   title: Online Classes API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password
+      parameters:
+      - description: Login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.RefreshTokenDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - Auth
   /categories:
     get:
       consumes:
@@ -740,6 +865,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all categorys
       tags:
       - Categories
@@ -773,6 +900,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create category
       tags:
       - Categories
@@ -810,6 +939,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete category
       tags:
       - Categories
@@ -842,6 +973,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get category by ID
       tags:
       - Categories
@@ -886,6 +1019,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update category
       tags:
       - Categories
@@ -909,6 +1044,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all course-lesson relations
       tags:
       - Course Lessons
@@ -942,6 +1079,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create course-lesson relation
       tags:
       - Course Lessons
@@ -979,6 +1118,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete course-lesson relation
       tags:
       - Course Lessons
@@ -1017,6 +1158,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get course-lesson relation by lesson ID
       tags:
       - Course Lessons
@@ -1040,6 +1183,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all courses
       tags:
       - Courses
@@ -1073,6 +1218,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create course
       tags:
       - Courses
@@ -1110,6 +1257,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete course
       tags:
       - Courses
@@ -1142,6 +1291,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get course by ID
       tags:
       - Courses
@@ -1186,6 +1337,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update course
       tags:
       - Courses
@@ -1209,6 +1362,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all currencys
       tags:
       - Currencies
@@ -1242,6 +1397,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create currency
       tags:
       - Currencies
@@ -1279,6 +1436,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete currency
       tags:
       - Currencies
@@ -1311,6 +1470,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get currency by ID
       tags:
       - Currencies
@@ -1355,6 +1516,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update currency
       tags:
       - Currencies
@@ -1378,6 +1541,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all homeworkresults
       tags:
       - HomeworkResults
@@ -1411,6 +1576,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create homeworkresult
       tags:
       - HomeworkResults
@@ -1448,6 +1615,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete homeworkresult
       tags:
       - HomeworkResults
@@ -1480,6 +1649,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get homeworkresult by ID
       tags:
       - HomeworkResults
@@ -1524,6 +1695,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update homeworkresult
       tags:
       - HomeworkResults
@@ -1547,6 +1720,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all homeworks
       tags:
       - Homeworks
@@ -1580,6 +1755,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create homework
       tags:
       - Homeworks
@@ -1603,6 +1780,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all homework-task relations
       tags:
       - Homework Tasks
@@ -1636,6 +1815,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create homework-task relation
       tags:
       - Homework Tasks
@@ -1678,6 +1859,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete homework-task relation
       tags:
       - Homework Tasks
@@ -1721,6 +1904,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get homework-task relation by IDs
       tags:
       - Homework Tasks
@@ -1758,6 +1943,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete homework
       tags:
       - Homeworks
@@ -1790,6 +1977,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get homework by ID
       tags:
       - Homeworks
@@ -1834,6 +2023,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update homework
       tags:
       - Homeworks
@@ -1857,6 +2048,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all lesson-homework relations
       tags:
       - Lesson Homeworks
@@ -1890,6 +2083,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create lesson-homework relation
       tags:
       - Lesson Homeworks
@@ -1932,6 +2127,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete lesson-homework relation
       tags:
       - Lesson Homeworks
@@ -1975,6 +2172,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get lesson-homework relation by IDs
       tags:
       - Lesson Homeworks
@@ -1998,6 +2197,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all lessons
       tags:
       - Lessons
@@ -2031,6 +2232,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create lesson
       tags:
       - Lessons
@@ -2054,6 +2257,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all lesson-material relations
       tags:
       - Lesson Materials
@@ -2087,6 +2292,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create lesson-material relation
       tags:
       - Lesson Materials
@@ -2129,6 +2336,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete lesson-material relation
       tags:
       - Lesson Materials
@@ -2172,6 +2381,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get lesson-material relation by IDs
       tags:
       - Lesson Materials
@@ -2209,6 +2420,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete lesson
       tags:
       - Lessons
@@ -2241,6 +2454,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get lesson by ID
       tags:
       - Lessons
@@ -2285,6 +2500,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update lesson
       tags:
       - Lessons
@@ -2308,6 +2525,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all levels
       tags:
       - Levels
@@ -2341,6 +2560,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create level
       tags:
       - Levels
@@ -2378,6 +2599,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete level
       tags:
       - Levels
@@ -2410,6 +2633,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get level by ID
       tags:
       - Levels
@@ -2454,6 +2679,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update level
       tags:
       - Levels
@@ -2477,6 +2704,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all materials
       tags:
       - Materials
@@ -2510,6 +2739,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create material
       tags:
       - Materials
@@ -2547,6 +2778,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete material
       tags:
       - Materials
@@ -2579,6 +2812,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get material by ID
       tags:
       - Materials
@@ -2623,6 +2858,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update material
       tags:
       - Materials
@@ -2646,6 +2883,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all student category statistics
       tags:
       - Reports
@@ -2687,6 +2926,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get student category statistics by category ID
       tags:
       - Reports
@@ -2728,6 +2969,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get student category statistics by student ID
       tags:
       - Reports
@@ -2751,6 +2994,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all statusanswers
       tags:
       - StatusAnswers
@@ -2784,6 +3029,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create statusanswer
       tags:
       - StatusAnswers
@@ -2821,6 +3068,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete statusanswer
       tags:
       - StatusAnswers
@@ -2853,6 +3102,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get statusanswer by ID
       tags:
       - StatusAnswers
@@ -2897,6 +3148,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update statusanswer
       tags:
       - StatusAnswers
@@ -2920,6 +3173,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all statushomeworks
       tags:
       - StatusHomeworks
@@ -2953,6 +3208,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create statushomework
       tags:
       - StatusHomeworks
@@ -2990,6 +3247,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete statushomework
       tags:
       - StatusHomeworks
@@ -3022,6 +3281,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get statushomework by ID
       tags:
       - StatusHomeworks
@@ -3066,6 +3327,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update statushomework
       tags:
       - StatusHomeworks
@@ -3089,6 +3352,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all statustransactions
       tags:
       - StatusTransactions
@@ -3122,6 +3387,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create statustransaction
       tags:
       - StatusTransactions
@@ -3159,6 +3426,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete statustransaction
       tags:
       - StatusTransactions
@@ -3191,6 +3460,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get statustransaction by ID
       tags:
       - StatusTransactions
@@ -3235,6 +3506,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update statustransaction
       tags:
       - StatusTransactions
@@ -3258,6 +3531,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all studentanswers
       tags:
       - StudentAnswers
@@ -3291,6 +3566,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create studentanswer
       tags:
       - StudentAnswers
@@ -3328,6 +3605,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete studentanswer
       tags:
       - StudentAnswers
@@ -3360,6 +3639,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get studentanswer by ID
       tags:
       - StudentAnswers
@@ -3404,6 +3685,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update studentanswer
       tags:
       - StudentAnswers
@@ -3427,6 +3710,9 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
       summary: Get all students
       tags:
       - Students
@@ -3497,6 +3783,9 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
       summary: Delete student
       tags:
       - Students
@@ -3529,6 +3818,9 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
       summary: Get student by ID
       tags:
       - Students
@@ -3573,6 +3865,9 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
       summary: Update student
       tags:
       - Students
@@ -3596,6 +3891,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all subcategorys
       tags:
       - Subcategories
@@ -3629,6 +3926,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create subcategory
       tags:
       - Subcategories
@@ -3666,6 +3965,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete subcategory
       tags:
       - Subcategories
@@ -3698,6 +3999,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get subcategory by ID
       tags:
       - Subcategories
@@ -3742,6 +4045,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update subcategory
       tags:
       - Subcategories
@@ -3765,6 +4070,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all tasks
       tags:
       - Tasks
@@ -3798,6 +4105,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create task
       tags:
       - Tasks
@@ -3835,6 +4144,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete task
       tags:
       - Tasks
@@ -3867,6 +4178,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get task by ID
       tags:
       - Tasks
@@ -3911,6 +4224,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update task
       tags:
       - Tasks
@@ -3934,6 +4249,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all teachers
       tags:
       - Teachers
@@ -3990,6 +4307,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all teacher-course relations
       tags:
       - Teacher Courses
@@ -4023,6 +4342,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create teacher-course relation
       tags:
       - Teacher Courses
@@ -4065,6 +4386,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete teacher-course relation
       tags:
       - Teacher Courses
@@ -4108,6 +4431,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get teacher-course relation by IDs
       tags:
       - Teacher Courses
@@ -4145,6 +4470,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete teacher
       tags:
       - Teachers
@@ -4177,6 +4504,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get teacher by ID
       tags:
       - Teachers
@@ -4221,6 +4550,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update teacher
       tags:
       - Teachers
@@ -4244,6 +4575,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all transactions
       tags:
       - Transactions
@@ -4277,6 +4610,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create transaction
       tags:
       - Transactions
@@ -4300,6 +4635,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all transaction-course relations
       tags:
       - Transaction Courses
@@ -4333,6 +4670,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create transaction-course relation
       tags:
       - Transaction Courses
@@ -4375,6 +4714,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete transaction-course relation
       tags:
       - Transaction Courses
@@ -4418,6 +4759,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get transaction-course relation by IDs
       tags:
       - Transaction Courses
@@ -4455,6 +4798,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete transaction
       tags:
       - Transactions
@@ -4487,6 +4832,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get transaction by ID
       tags:
       - Transactions
@@ -4531,6 +4878,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update transaction
       tags:
       - Transactions
@@ -4568,6 +4917,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Bulk update transaction status
       tags:
       - Transactions
@@ -4611,7 +4962,15 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get transaction report by parameters
       tags:
       - Transactions
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -32,6 +32,7 @@ func NewStatusTransactionHandler(statusTransactionService service.StatusTransact
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-transactions [post]
+// @Security BearerAuth
 func (h *StatusTransactionHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *StatusTransactionHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /status-transactions/{id} [get]
+// @Security BearerAuth
 func (h *StatusTransactionHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *StatusTransactionHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.StatusTransactionDTO
 // @Failure 500 {object} map[string]string
 // @Router /status-transactions [get]
+// @Security BearerAuth
 func (h *StatusTransactionHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *StatusTransactionHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-transactions/{id} [put]
+// @Security BearerAuth
 func (h *StatusTransactionHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *StatusTransactionHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-transactions/{id} [delete]
+// @Security BearerAuth
 func (h *StatusTransactionHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

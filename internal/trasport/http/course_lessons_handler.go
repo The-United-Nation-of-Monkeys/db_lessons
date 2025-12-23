@@ -32,6 +32,7 @@ func NewCourseLessonsHandler(courseLessonsService service.CourseLessonsServiceIn
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /course-lessons [post]
+// @Security BearerAuth
 func (h *CourseLessonsHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -63,6 +64,7 @@ func (h *CourseLessonsHandler) Create(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /course-lessons/{id} [get]
+// @Security BearerAuth
 func (h *CourseLessonsHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -89,6 +91,7 @@ func (h *CourseLessonsHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.CourseLessonsDTO
 // @Failure 500 {object} map[string]string
 // @Router /course-lessons [get]
+// @Security BearerAuth
 func (h *CourseLessonsHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *CourseLessonsHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /course-lessons/{id} [delete]
+// @Security BearerAuth
 func (h *CourseLessonsHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

@@ -32,6 +32,7 @@ func NewSubcategoryHandler(subcategoryService service.SubcategoryServiceInterfac
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /subcategories [post]
+// @Security BearerAuth
 func (h *SubcategoryHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *SubcategoryHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /subcategories/{id} [get]
+// @Security BearerAuth
 func (h *SubcategoryHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *SubcategoryHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.SubcategoryDTO
 // @Failure 500 {object} map[string]string
 // @Router /subcategories [get]
+// @Security BearerAuth
 func (h *SubcategoryHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *SubcategoryHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /subcategories/{id} [put]
+// @Security BearerAuth
 func (h *SubcategoryHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *SubcategoryHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /subcategories/{id} [delete]
+// @Security BearerAuth
 func (h *SubcategoryHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

@@ -32,6 +32,7 @@ func NewTransactionsCoursesHandler(transactionsCoursesService service.Transactio
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions-courses [post]
+// @Security BearerAuth
 func (h *TransactionsCoursesHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -64,6 +65,7 @@ func (h *TransactionsCoursesHandler) Create(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions-courses/{transaction_id}/{course_id} [get]
+// @Security BearerAuth
 func (h *TransactionsCoursesHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -97,6 +99,7 @@ func (h *TransactionsCoursesHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.TransactionsCoursesDTO
 // @Failure 500 {object} map[string]string
 // @Router /transactions-courses [get]
+// @Security BearerAuth
 func (h *TransactionsCoursesHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -121,6 +124,7 @@ func (h *TransactionsCoursesHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /transactions-courses/{transaction_id}/{course_id} [delete]
+// @Security BearerAuth
 func (h *TransactionsCoursesHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

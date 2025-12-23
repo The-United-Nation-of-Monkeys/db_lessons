@@ -32,6 +32,7 @@ func NewStatusHomeworkHandler(statusHomeworkService service.StatusHomeworkServic
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-homeworks [post]
+// @Security BearerAuth
 func (h *StatusHomeworkHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *StatusHomeworkHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /status-homeworks/{id} [get]
+// @Security BearerAuth
 func (h *StatusHomeworkHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *StatusHomeworkHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.StatusHomeworkDTO
 // @Failure 500 {object} map[string]string
 // @Router /status-homeworks [get]
+// @Security BearerAuth
 func (h *StatusHomeworkHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *StatusHomeworkHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-homeworks/{id} [put]
+// @Security BearerAuth
 func (h *StatusHomeworkHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *StatusHomeworkHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /status-homeworks/{id} [delete]
+// @Security BearerAuth
 func (h *StatusHomeworkHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

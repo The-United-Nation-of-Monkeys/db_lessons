@@ -62,6 +62,7 @@ func (h *TeacherHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /teachers/{id} [get]
+// @Security BearerAuth
 func (h *TeacherHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +89,7 @@ func (h *TeacherHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.TeacherDTO
 // @Failure 500 {object} map[string]string
 // @Router /teachers [get]
+// @Security BearerAuth
 func (h *TeacherHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +114,7 @@ func (h *TeacherHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /teachers/{id} [put]
+// @Security BearerAuth
 func (h *TeacherHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +153,7 @@ func (h *TeacherHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /teachers/{id} [delete]
+// @Security BearerAuth
 func (h *TeacherHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

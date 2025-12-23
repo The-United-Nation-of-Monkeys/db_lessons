@@ -1,0 +1,13 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+bin/
+dist/
+
+# Logs
+*.log
+

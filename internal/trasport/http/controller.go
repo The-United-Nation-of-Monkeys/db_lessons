@@ -7,9 +7,11 @@ import (
 
 	"github.com/Flussen/swagger-fiber-v3"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/docs"
+	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/auth"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/config"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/internal/container/initializer"
 	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/logger"
+	"github.com/The-United-Nation-of-Monkeys/db_lessons/pkg/middleware"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cache"
 	"github.com/gofiber/fiber/v3/middleware/cors"
@@ -23,16 +25,40 @@ func NewController(server *fiber.App, cfg *config.Config, services *initializer.
 	server.Use(logger.Middleware(&cfg.Logger))
 	server.Use(cors.New())
 	server.Use(helmet.New())
-	server.Use(cache.New(cache.Config{
-		Storage:      redisStg,
-		Expiration:   10 * time.Second,
-		CacheControl: true,
-	}))
+	// Cache middleware moved to API group to ensure it runs after auth middleware
 
 	api := server.Group(fmt.Sprintf("/api/v%d", cfg.Server.Version))
 	api.Use("/swagger/*", swagger.HandlerDefault)
 	docs.SwaggerInfo.Version = strconv.Itoa(cfg.Server.Version)
 	docs.SwaggerInfo.BasePath = fmt.Sprintf("/api/v%d", cfg.Server.Version)
+
+	// Get route configurations for authentication
+	routeConfigs := auth.GetPermissions(cfg.Server.Version)
+
+	api.Use(middleware.AuthMiddleware(services.JWTService, routeConfigs, cfg.Server.Version))
+
+	// Cache middleware - only cache if request is authenticated
+	// This ensures auth is checked before caching
+	api.Use(cache.New(cache.Config{
+		Storage:      redisStg,
+		Expiration:   10 * time.Second,
+		CacheControl: true,
+		// Only cache if user is authenticated (has token)
+		Next: func(c fiber.Ctx) bool {
+			// Don't cache if no auth token (let auth middleware handle it)
+			token := c.Cookies("access-token")
+			if token == "" {
+				token = c.Get("Authorization")
+			}
+			// Only cache authenticated requests
+			return token == ""
+		},
+	}))
+
+	// Auth routes (public)
+	authHandler := NewAuthHandler(services.AuthService)
+	api.Post("/auth/login", authHandler.Login)
+	api.Post("/auth/refresh", authHandler.RefreshToken)
 
 	// Student routes
 	studentHandler := NewStudentHandler(services.StudentService)

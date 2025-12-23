@@ -15,8 +15,144 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Login with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Login data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Refresh access token using refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.RefreshTokenDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/categories": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all categorys",
                 "consumes": [
                     "application/json"
@@ -50,6 +186,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new category",
                 "consumes": [
                     "application/json"
@@ -102,6 +243,11 @@ const docTemplate = `{
         },
         "/categories/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get category by ID",
                 "consumes": [
                     "application/json"
@@ -150,6 +296,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update category by ID",
                 "consumes": [
                     "application/json"
@@ -216,6 +367,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete category by ID",
                 "consumes": [
                     "application/json"
@@ -272,6 +428,11 @@ const docTemplate = `{
         },
         "/course-lessons": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between courses and lessons",
                 "consumes": [
                     "application/json"
@@ -305,6 +466,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between course and lesson",
                 "consumes": [
                     "application/json"
@@ -357,6 +523,11 @@ const docTemplate = `{
         },
         "/course-lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by lesson ID",
                 "consumes": [
                     "application/json"
@@ -414,6 +585,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by lesson ID",
                 "consumes": [
                     "application/json"
@@ -470,6 +646,11 @@ const docTemplate = `{
         },
         "/courses": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all courses",
                 "consumes": [
                     "application/json"
@@ -503,6 +684,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new course",
                 "consumes": [
                     "application/json"
@@ -555,6 +741,11 @@ const docTemplate = `{
         },
         "/courses/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get course by ID",
                 "consumes": [
                     "application/json"
@@ -603,6 +794,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update course by ID",
                 "consumes": [
                     "application/json"
@@ -669,6 +865,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete course by ID",
                 "consumes": [
                     "application/json"
@@ -725,6 +926,11 @@ const docTemplate = `{
         },
         "/currencies": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all currencys",
                 "consumes": [
                     "application/json"
@@ -758,6 +964,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new currency",
                 "consumes": [
                     "application/json"
@@ -810,6 +1021,11 @@ const docTemplate = `{
         },
         "/currencies/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get currency by ID",
                 "consumes": [
                     "application/json"
@@ -858,6 +1074,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update currency by ID",
                 "consumes": [
                     "application/json"
@@ -924,6 +1145,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete currency by ID",
                 "consumes": [
                     "application/json"
@@ -980,6 +1206,11 @@ const docTemplate = `{
         },
         "/homework-results": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all homeworkresults",
                 "consumes": [
                     "application/json"
@@ -1013,6 +1244,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new homeworkresult",
                 "consumes": [
                     "application/json"
@@ -1065,6 +1301,11 @@ const docTemplate = `{
         },
         "/homework-results/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get homeworkresult by ID",
                 "consumes": [
                     "application/json"
@@ -1113,6 +1354,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update homeworkresult by ID",
                 "consumes": [
                     "application/json"
@@ -1179,6 +1425,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete homeworkresult by ID",
                 "consumes": [
                     "application/json"
@@ -1235,6 +1486,11 @@ const docTemplate = `{
         },
         "/homeworks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all homeworks",
                 "consumes": [
                     "application/json"
@@ -1268,6 +1524,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new homework",
                 "consumes": [
                     "application/json"
@@ -1320,6 +1581,11 @@ const docTemplate = `{
         },
         "/homeworks-tasks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between homeworks and tasks",
                 "consumes": [
                     "application/json"
@@ -1353,6 +1619,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between homework and task",
                 "consumes": [
                     "application/json"
@@ -1405,6 +1676,11 @@ const docTemplate = `{
         },
         "/homeworks-tasks/{task_id}/{homework_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by task ID and homework ID",
                 "consumes": [
                     "application/json"
@@ -1469,6 +1745,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by task ID and homework ID",
                 "consumes": [
                     "application/json"
@@ -1532,6 +1813,11 @@ const docTemplate = `{
         },
         "/homeworks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get homework by ID",
                 "consumes": [
                     "application/json"
@@ -1580,6 +1866,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update homework by ID",
                 "consumes": [
                     "application/json"
@@ -1646,6 +1937,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete homework by ID",
                 "consumes": [
                     "application/json"
@@ -1702,6 +1998,11 @@ const docTemplate = `{
         },
         "/lesson-homeworks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between lessons and homeworks",
                 "consumes": [
                     "application/json"
@@ -1735,6 +2036,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between lesson and homework",
                 "consumes": [
                     "application/json"
@@ -1787,6 +2093,11 @@ const docTemplate = `{
         },
         "/lesson-homeworks/{lesson_id}/{homework_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by lesson ID and homework ID",
                 "consumes": [
                     "application/json"
@@ -1851,6 +2162,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by lesson ID and homework ID",
                 "consumes": [
                     "application/json"
@@ -1914,6 +2230,11 @@ const docTemplate = `{
         },
         "/lessons": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all lessons",
                 "consumes": [
                     "application/json"
@@ -1947,6 +2268,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new lesson",
                 "consumes": [
                     "application/json"
@@ -1999,6 +2325,11 @@ const docTemplate = `{
         },
         "/lessons-materials": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between lessons and materials",
                 "consumes": [
                     "application/json"
@@ -2032,6 +2363,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between lesson and material",
                 "consumes": [
                     "application/json"
@@ -2084,6 +2420,11 @@ const docTemplate = `{
         },
         "/lessons-materials/{lesson_id}/{material_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by lesson ID and material ID",
                 "consumes": [
                     "application/json"
@@ -2148,6 +2489,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by lesson ID and material ID",
                 "consumes": [
                     "application/json"
@@ -2211,6 +2557,11 @@ const docTemplate = `{
         },
         "/lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get lesson by ID",
                 "consumes": [
                     "application/json"
@@ -2259,6 +2610,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update lesson by ID",
                 "consumes": [
                     "application/json"
@@ -2325,6 +2681,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete lesson by ID",
                 "consumes": [
                     "application/json"
@@ -2381,6 +2742,11 @@ const docTemplate = `{
         },
         "/levels": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all levels",
                 "consumes": [
                     "application/json"
@@ -2414,6 +2780,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new level",
                 "consumes": [
                     "application/json"
@@ -2466,6 +2837,11 @@ const docTemplate = `{
         },
         "/levels/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get level by ID",
                 "consumes": [
                     "application/json"
@@ -2514,6 +2890,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update level by ID",
                 "consumes": [
                     "application/json"
@@ -2580,6 +2961,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete level by ID",
                 "consumes": [
                     "application/json"
@@ -2636,6 +3022,11 @@ const docTemplate = `{
         },
         "/materials": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all materials",
                 "consumes": [
                     "application/json"
@@ -2669,6 +3060,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new material",
                 "consumes": [
                     "application/json"
@@ -2721,6 +3117,11 @@ const docTemplate = `{
         },
         "/materials/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get material by ID",
                 "consumes": [
                     "application/json"
@@ -2769,6 +3170,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update material by ID",
                 "consumes": [
                     "application/json"
@@ -2835,6 +3241,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete material by ID",
                 "consumes": [
                     "application/json"
@@ -2891,6 +3302,11 @@ const docTemplate = `{
         },
         "/reports/student-category-stats": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statistics for all students by categories",
                 "consumes": [
                     "application/json"
@@ -2926,6 +3342,11 @@ const docTemplate = `{
         },
         "/reports/student-category-stats/categories/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statistics for all students in a specific category",
                 "consumes": [
                     "application/json"
@@ -2988,6 +3409,11 @@ const docTemplate = `{
         },
         "/reports/student-category-stats/students/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statistics for a specific student by categories",
                 "consumes": [
                     "application/json"
@@ -3050,6 +3476,11 @@ const docTemplate = `{
         },
         "/status-answers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all statusanswers",
                 "consumes": [
                     "application/json"
@@ -3083,6 +3514,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new statusanswer",
                 "consumes": [
                     "application/json"
@@ -3135,6 +3571,11 @@ const docTemplate = `{
         },
         "/status-answers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statusanswer by ID",
                 "consumes": [
                     "application/json"
@@ -3183,6 +3624,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update statusanswer by ID",
                 "consumes": [
                     "application/json"
@@ -3249,6 +3695,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete statusanswer by ID",
                 "consumes": [
                     "application/json"
@@ -3305,6 +3756,11 @@ const docTemplate = `{
         },
         "/status-homeworks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all statushomeworks",
                 "consumes": [
                     "application/json"
@@ -3338,6 +3794,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new statushomework",
                 "consumes": [
                     "application/json"
@@ -3390,6 +3851,11 @@ const docTemplate = `{
         },
         "/status-homeworks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statushomework by ID",
                 "consumes": [
                     "application/json"
@@ -3438,6 +3904,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update statushomework by ID",
                 "consumes": [
                     "application/json"
@@ -3504,6 +3975,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete statushomework by ID",
                 "consumes": [
                     "application/json"
@@ -3560,6 +4036,11 @@ const docTemplate = `{
         },
         "/status-transactions": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all statustransactions",
                 "consumes": [
                     "application/json"
@@ -3593,6 +4074,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new statustransaction",
                 "consumes": [
                     "application/json"
@@ -3645,6 +4131,11 @@ const docTemplate = `{
         },
         "/status-transactions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get statustransaction by ID",
                 "consumes": [
                     "application/json"
@@ -3693,6 +4184,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update statustransaction by ID",
                 "consumes": [
                     "application/json"
@@ -3759,6 +4255,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete statustransaction by ID",
                 "consumes": [
                     "application/json"
@@ -3815,6 +4316,11 @@ const docTemplate = `{
         },
         "/student-answers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all studentanswers",
                 "consumes": [
                     "application/json"
@@ -3848,6 +4354,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new studentanswer",
                 "consumes": [
                     "application/json"
@@ -3900,6 +4411,11 @@ const docTemplate = `{
         },
         "/student-answers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get studentanswer by ID",
                 "consumes": [
                     "application/json"
@@ -3948,6 +4464,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update studentanswer by ID",
                 "consumes": [
                     "application/json"
@@ -4014,6 +4535,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete studentanswer by ID",
                 "consumes": [
                     "application/json"
@@ -4070,6 +4596,14 @@ const docTemplate = `{
         },
         "/students": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all students",
                 "consumes": [
                     "application/json"
@@ -4155,6 +4689,14 @@ const docTemplate = `{
         },
         "/students/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get student by ID",
                 "consumes": [
                     "application/json"
@@ -4203,6 +4745,14 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update student by ID",
                 "consumes": [
                     "application/json"
@@ -4269,6 +4819,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete student by ID",
                 "consumes": [
                     "application/json"
@@ -4325,6 +4883,11 @@ const docTemplate = `{
         },
         "/subcategories": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all subcategorys",
                 "consumes": [
                     "application/json"
@@ -4358,6 +4921,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new subcategory",
                 "consumes": [
                     "application/json"
@@ -4410,6 +4978,11 @@ const docTemplate = `{
         },
         "/subcategories/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get subcategory by ID",
                 "consumes": [
                     "application/json"
@@ -4458,6 +5031,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update subcategory by ID",
                 "consumes": [
                     "application/json"
@@ -4524,6 +5102,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete subcategory by ID",
                 "consumes": [
                     "application/json"
@@ -4580,6 +5163,11 @@ const docTemplate = `{
         },
         "/tasks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all tasks",
                 "consumes": [
                     "application/json"
@@ -4613,6 +5201,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new task",
                 "consumes": [
                     "application/json"
@@ -4665,6 +5258,11 @@ const docTemplate = `{
         },
         "/tasks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get task by ID",
                 "consumes": [
                     "application/json"
@@ -4713,6 +5311,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update task by ID",
                 "consumes": [
                     "application/json"
@@ -4779,6 +5382,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete task by ID",
                 "consumes": [
                     "application/json"
@@ -4835,6 +5443,11 @@ const docTemplate = `{
         },
         "/teachers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all teachers",
                 "consumes": [
                     "application/json"
@@ -4920,6 +5533,11 @@ const docTemplate = `{
         },
         "/teachers-courses": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between teachers and courses",
                 "consumes": [
                     "application/json"
@@ -4953,6 +5571,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between teacher and course",
                 "consumes": [
                     "application/json"
@@ -5005,6 +5628,11 @@ const docTemplate = `{
         },
         "/teachers-courses/{course_id}/{teacher_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by course ID and teacher ID",
                 "consumes": [
                     "application/json"
@@ -5069,6 +5697,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by course ID and teacher ID",
                 "consumes": [
                     "application/json"
@@ -5132,6 +5765,11 @@ const docTemplate = `{
         },
         "/teachers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get teacher by ID",
                 "consumes": [
                     "application/json"
@@ -5180,6 +5818,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update teacher by ID",
                 "consumes": [
                     "application/json"
@@ -5246,6 +5889,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete teacher by ID",
                 "consumes": [
                     "application/json"
@@ -5302,6 +5950,11 @@ const docTemplate = `{
         },
         "/transactions": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all transactions",
                 "consumes": [
                     "application/json"
@@ -5335,6 +5988,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new transaction",
                 "consumes": [
                     "application/json"
@@ -5387,6 +6045,11 @@ const docTemplate = `{
         },
         "/transactions-courses": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all relations between transactions and courses",
                 "consumes": [
                     "application/json"
@@ -5420,6 +6083,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new relation between transaction and course",
                 "consumes": [
                     "application/json"
@@ -5472,6 +6140,11 @@ const docTemplate = `{
         },
         "/transactions-courses/{transaction_id}/{course_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get relation by transaction ID and course ID",
                 "consumes": [
                     "application/json"
@@ -5536,6 +6209,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete relation by transaction ID and course ID",
                 "consumes": [
                     "application/json"
@@ -5599,6 +6277,11 @@ const docTemplate = `{
         },
         "/transactions/bulk-update-status": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Bulk update transaction status by old status id, new status id and optional price range",
                 "consumes": [
                     "application/json"
@@ -5654,6 +6337,11 @@ const docTemplate = `{
         },
         "/transactions/report": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get transaction report filtered by status name, min total, max total",
                 "consumes": [
                     "application/json"
@@ -5718,6 +6406,11 @@ const docTemplate = `{
         },
         "/transactions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get transaction by ID",
                 "consumes": [
                     "application/json"
@@ -5766,6 +6459,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update transaction by ID",
                 "consumes": [
                     "application/json"
@@ -5832,6 +6530,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete transaction by ID",
                 "consumes": [
                     "application/json"
@@ -5888,6 +6591,32 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.AuthResponseDTO": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.BulkUpdateTransactionStatusDTO": {
             "type": "object",
             "required": [
@@ -6478,6 +7207,30 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.LoginDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "student",
+                        "teacher"
+                    ]
+                }
+            }
+        },
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.MaterialDTO": {
             "type": "object",
             "properties": {
@@ -6491,6 +7244,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.RefreshTokenDTO": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
                     "type": "string"
                 }
             }
@@ -6977,6 +7738,14 @@ const docTemplate = `{
                     "minimum": 0
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

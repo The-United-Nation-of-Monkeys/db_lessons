@@ -32,6 +32,7 @@ func NewLessonHomeworksHandler(lessonHomeworksService service.LessonHomeworksSer
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lesson-homeworks [post]
+// @Security BearerAuth
 func (h *LessonHomeworksHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -64,6 +65,7 @@ func (h *LessonHomeworksHandler) Create(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lesson-homeworks/{lesson_id}/{homework_id} [get]
+// @Security BearerAuth
 func (h *LessonHomeworksHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -97,6 +99,7 @@ func (h *LessonHomeworksHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.LessonHomeworksDTO
 // @Failure 500 {object} map[string]string
 // @Router /lesson-homeworks [get]
+// @Security BearerAuth
 func (h *LessonHomeworksHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -121,6 +124,7 @@ func (h *LessonHomeworksHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /lesson-homeworks/{lesson_id}/{homework_id} [delete]
+// @Security BearerAuth
 func (h *LessonHomeworksHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

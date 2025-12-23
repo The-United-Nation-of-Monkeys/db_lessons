@@ -30,6 +30,7 @@ func NewStudentCategoryStatsHandler(studentCategoryStatsService service.StudentC
 // @Success 200 {array} dto.StudentCategoryStatsDTO
 // @Failure 500 {object} map[string]string
 // @Router /reports/student-category-stats [get]
+// @Security BearerAuth
 func (h *StudentCategoryStatsHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -54,6 +55,7 @@ func (h *StudentCategoryStatsHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /reports/student-category-stats/students/{id} [get]
+// @Security BearerAuth
 func (h *StudentCategoryStatsHandler) GetByStudentID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -84,6 +86,7 @@ func (h *StudentCategoryStatsHandler) GetByStudentID(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /reports/student-category-stats/categories/{id} [get]
+// @Security BearerAuth
 func (h *StudentCategoryStatsHandler) GetByCategoryID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

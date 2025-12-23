@@ -32,6 +32,7 @@ func NewStudentAnswerHandler(studentAnswerService service.StudentAnswerServiceIn
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /student-answers [post]
+// @Security BearerAuth
 func (h *StudentAnswerHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *StudentAnswerHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /student-answers/{id} [get]
+// @Security BearerAuth
 func (h *StudentAnswerHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *StudentAnswerHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.StudentAnswerDTO
 // @Failure 500 {object} map[string]string
 // @Router /student-answers [get]
+// @Security BearerAuth
 func (h *StudentAnswerHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *StudentAnswerHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /student-answers/{id} [put]
+// @Security BearerAuth
 func (h *StudentAnswerHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *StudentAnswerHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /student-answers/{id} [delete]
+// @Security BearerAuth
 func (h *StudentAnswerHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

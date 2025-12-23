@@ -32,6 +32,7 @@ func NewHomeworkHandler(homeworkService service.HomeworkServiceInterface) *Homew
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks [post]
+// @Security BearerAuth
 func (h *HomeworkHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *HomeworkHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /homeworks/{id} [get]
+// @Security BearerAuth
 func (h *HomeworkHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *HomeworkHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.HomeworkDTO
 // @Failure 500 {object} map[string]string
 // @Router /homeworks [get]
+// @Security BearerAuth
 func (h *HomeworkHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *HomeworkHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks/{id} [put]
+// @Security BearerAuth
 func (h *HomeworkHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *HomeworkHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /homeworks/{id} [delete]
+// @Security BearerAuth
 func (h *HomeworkHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

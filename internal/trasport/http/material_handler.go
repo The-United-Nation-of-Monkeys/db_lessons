@@ -32,6 +32,7 @@ func NewMaterialHandler(materialService service.MaterialServiceInterface) *Mater
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /materials [post]
+// @Security BearerAuth
 func (h *MaterialHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *MaterialHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /materials/{id} [get]
+// @Security BearerAuth
 func (h *MaterialHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *MaterialHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.MaterialDTO
 // @Failure 500 {object} map[string]string
 // @Router /materials [get]
+// @Security BearerAuth
 func (h *MaterialHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *MaterialHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /materials/{id} [put]
+// @Security BearerAuth
 func (h *MaterialHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *MaterialHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /materials/{id} [delete]
+// @Security BearerAuth
 func (h *MaterialHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

@@ -32,6 +32,7 @@ func NewTaskHandler(taskService service.TaskServiceInterface) *TaskHandler {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /tasks [post]
+// @Security BearerAuth
 func (h *TaskHandler) Create(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -62,6 +63,7 @@ func (h *TaskHandler) Create(ctx fiber.Ctx) error {
 // @Failure 404 {object} map[string]string
 // @Failure 422 {object} map[string]string
 // @Router /tasks/{id} [get]
+// @Security BearerAuth
 func (h *TaskHandler) GetByID(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -88,6 +90,7 @@ func (h *TaskHandler) GetByID(ctx fiber.Ctx) error {
 // @Success 200 {array} dto.TaskDTO
 // @Failure 500 {object} map[string]string
 // @Router /tasks [get]
+// @Security BearerAuth
 func (h *TaskHandler) GetAll(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -112,6 +115,7 @@ func (h *TaskHandler) GetAll(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /tasks/{id} [put]
+// @Security BearerAuth
 func (h *TaskHandler) Update(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 
@@ -150,6 +154,7 @@ func (h *TaskHandler) Update(ctx fiber.Ctx) error {
 // @Failure 422 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /tasks/{id} [delete]
+// @Security BearerAuth
 func (h *TaskHandler) Delete(ctx fiber.Ctx) error {
 	localLogger := logger.GetLoggerFromCtx(ctx.Context())
 

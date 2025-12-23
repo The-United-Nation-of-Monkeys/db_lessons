@@ -35,6 +35,7 @@ type ServiceList struct {
 	LessonHomeworksService      service.LessonHomeworksServiceInterface
 	HomeworksTasksService       service.HomeworksTasksServiceInterface
 	TransactionsCoursesService  service.TransactionsCoursesServiceInterface
+	SQLExecuteService           service.SQLExecuteServiceInterface
 }
 
 func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceList {
@@ -104,5 +105,6 @@ func NewServiceList(repositories *RepositoryList, cfg *config.Config) *ServiceLi
 		LessonHomeworksService:      service.NewLessonHomeworksService(baseService, repositories.LessonHomeworksRepository),
 		HomeworksTasksService:       service.NewHomeworksTasksService(baseService, repositories.HomeworksTasksRepository),
 		TransactionsCoursesService:  service.NewTransactionsCoursesService(baseService, repositories.TransactionsCoursesRepository),
+		SQLExecuteService:           service.NewSQLExecuteService(baseService, repositories.SQLExecuteRepository),
 	}
 }

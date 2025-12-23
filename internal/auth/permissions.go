@@ -166,6 +166,9 @@ func GetPermissions(apiVersion int) map[string][]string {
 		fmt.Sprintf("POST /api/v%d/transactions-courses", apiVersion):                              {"student", "teacher", "admin"},
 		fmt.Sprintf("GET /api/v%d/transactions-courses/:transaction_id/:course_id", apiVersion):    {"student", "teacher", "admin"},
 		fmt.Sprintf("DELETE /api/v%d/transactions-courses/:transaction_id/:course_id", apiVersion): {"student", "teacher", "admin"},
+
+		// SQL Execute (admin only)
+		fmt.Sprintf("POST /api/v%d/sql/execute", apiVersion): {"admin"},
 	}
 
 	return routeConfigs

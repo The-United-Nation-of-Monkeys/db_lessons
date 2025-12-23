@@ -28,6 +28,7 @@ type RepositoryList struct {
 	HomeworksTasksRepository           repository.HomeworksTasksRepositoryInterface
 	TransactionsCoursesRepository      repository.TransactionsCoursesRepositoryInterface
 	StudentCategoryStatsRepository     repository.StudentCategoryStatsRepositoryInterface
+	SQLExecuteRepository               repository.SQLExecuteRepositoryInterface
 }
 
 func NewRepositoryList() *RepositoryList {
@@ -57,5 +58,6 @@ func NewRepositoryList() *RepositoryList {
 		HomeworksTasksRepository:           repository.NewHomeworksTasksRepository(),
 		TransactionsCoursesRepository:      repository.NewTransactionsCoursesRepository(),
 		StudentCategoryStatsRepository:     repository.NewStudentCategoryStatsRepository(),
+		SQLExecuteRepository:               repository.NewSQLExecuteRepository(),
 	}
 }

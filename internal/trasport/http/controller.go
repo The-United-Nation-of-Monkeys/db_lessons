@@ -247,6 +247,10 @@ func NewController(server *fiber.App, cfg *config.Config, services *initializer.
 	api.Get("/transactions-courses/:transaction_id/:course_id", transactionsCoursesHandler.GetByID)
 	api.Delete("/transactions-courses/:transaction_id/:course_id", transactionsCoursesHandler.Delete)
 
+	// SQL Execute routes (admin only)
+	sqlExecuteHandler := NewSQLExecuteHandler(services.SQLExecuteService)
+	api.Post("/sql/execute", sqlExecuteHandler.ExecuteSQL)
+
 	api.Get("/ping", func(ctx fiber.Ctx) error {
 		return ctx.Status(200).SendString("pong")
 	})

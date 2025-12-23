@@ -3474,6 +3474,90 @@ const docTemplate = `{
                 }
             }
         },
+        "/sql/execute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Execute arbitrary SQL query in the database. This endpoint allows administrators to execute any SQL query (SELECT, INSERT, UPDATE, DELETE, etc.). For SELECT queries, it returns the results with columns and rows. For modification queries (INSERT, UPDATE, DELETE), it returns the number of affected rows. **WARNING: This endpoint has full database access and should only be used by trusted administrators.**",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SQL Execute"
+                ],
+                "summary": "Execute SQL query",
+                "parameters": [
+                    {
+                        "description": "SQL query to execute",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.ExecuteSQLDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Query executed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.ExecuteSQLResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid query or query is required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - admin role required",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable entity - invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - SQL execution failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/status-answers": {
             "get": {
                 "security": [
@@ -6776,18 +6860,19 @@ const docTemplate = `{
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.CreateHomeworkResultDTO": {
             "type": "object",
             "required": [
+                "student_answer_id",
                 "student_id",
                 "task_id"
             ],
             "properties": {
-                "answer": {
-                    "type": "string"
-                },
                 "points": {
                     "type": "integer",
                     "minimum": 0
                 },
                 "status_homework_id": {
+                    "type": "integer"
+                },
+                "student_answer_id": {
                     "type": "integer"
                 },
                 "student_id": {
@@ -7100,6 +7185,50 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.ExecuteSQLDTO": {
+            "type": "object",
+            "required": [
+                "query"
+            ],
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "example": "SELECT * FROM student LIMIT 10"
+                }
+            }
+        },
+        "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.ExecuteSQLResponseDTO": {
+            "type": "object",
+            "properties": {
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "student_id",
+                        "name",
+                        "surname",
+                        "email"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Query executed successfully"
+                },
+                "rows": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "rows_affected": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworkDTO": {
             "type": "object",
             "properties": {
@@ -7120,8 +7249,8 @@ const docTemplate = `{
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.HomeworkResultDTO": {
             "type": "object",
             "properties": {
-                "answer": {
-                    "type": "string"
+                "homework_result_id": {
+                    "type": "integer"
                 },
                 "points": {
                     "type": "integer"
@@ -7549,14 +7678,14 @@ const docTemplate = `{
         "github_com_The-United-Nation-of-Monkeys_db_lessons_internal_dto.UpdateHomeworkResultDTO": {
             "type": "object",
             "properties": {
-                "answer": {
-                    "type": "string"
-                },
                 "points": {
                     "type": "integer",
                     "minimum": 0
                 },
                 "status_homework_id": {
+                    "type": "integer"
+                },
+                "student_answer_id": {
                     "type": "integer"
                 },
                 "student_id": {
